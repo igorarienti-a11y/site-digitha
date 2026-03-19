@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dígitha — A extensão inteligente do seu marketing</title>
+    <meta name="description" content="Dígitha é o Digital Hub que impulsiona o crescimento de empresas com marketing digital inteligente, tráfego pago e IA. Fale com um especialista.">
+    <link rel="icon" type="image/png" href="assets/icon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- PRELOADER -->
+    <div class="preloader" id="preloader">
+        <img src="assets/icon.png" alt="Dígitha" class="preloader__icon">
+        <div class="preloader__bar"><div class="preloader__progress"></div></div>
+    </div>
+
+    <!-- HEADER -->
+    <header class="header" id="header">
+        <div class="container header__inner">
+            <a href="#" class="header__logo">
+                <img src="assets/logo.png" alt="Dígitha" class="header__logo-img">
+            </a>
+            <nav class="header__nav" id="nav">
+                <a href="#pilares" class="nav-link">Pilares</a>
+                <a href="#servicos" class="nav-link">Serviços</a>
+                <a href="#resultados" class="nav-link">Resultados</a>
+                <a href="#sobre" class="nav-link">Sobre</a>
+                <a href="#contato" class="nav-link nav-link--cta">Fale Conosco</a>
+            </nav>
+            <button class="header__hamburger" id="hamburger" aria-label="Menu">
+                <span></span><span></span><span></span>
+            </button>
+        </div>
+    </header>
+
+    <!-- HERO -->
+    <section class="hero" id="hero">
+        <canvas id="particles-canvas"></canvas>
+        <div class="hero__bg-image"></div>
+        <div class="hero__overlay"></div>
+        <div class="container hero__content">
+            <div class="hero__badge" data-gsap="hero">
+                <span class="badge-dot"></span>
+                Digital Hub — Marketing Inteligente
+            </div>
+            <h1 class="hero__title" data-gsap="hero">
+                Abra caminhos para explorar <span class="text-gradient">todo o potencial</span> do seu negócio.
+            </h1>
+            <p class="hero__subtitle" data-gsap="hero">
+                A extensão inteligente do seu marketing. Impulsionamos o crescimento de empresas com tráfego pago estratégico, automação com IA e dados que geram resultados reais.
+            </p>
+            <div class="hero__ctas" data-gsap="hero">
+                <a href="https://wa.me/5548999127745?text=Olá!%20Quero%20saber%20mais%20sobre%20os%20serviços%20da%20Dígitha." class="btn btn--primary" id="hero-cta">
+                    <svg class="btn-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                    Fale com um especialista
+                </a>
+                <a href="#servicos" class="btn btn--outline" id="hero-cta-secondary">
+                    Conheça nossos serviços
+                    <svg class="btn-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                </a>
+            </div>
+            <div class="hero__metrics" data-gsap="hero">
+                <div class="hero-metric">
+                    <span class="hero-metric__number">+150</span>
+                    <span class="hero-metric__label">Projetos entregues</span>
+                </div>
+                <div class="hero-metric__divider"></div>
+                <div class="hero-metric">
+                    <span class="hero-metric__number">+50</span>
+                    <span class="hero-metric__label">Clientes ativos</span>
+                </div>
+                <div class="hero-metric__divider"></div>
+                <div class="hero-metric">
+                    <span class="hero-metric__number">+8</span>
+                    <span class="hero-metric__label">Anos de mercado</span>
+                </div>
+            </div>
+        </div>
+        <div class="hero__scroll-indicator">
+            <div class="scroll-line"></div>
+            <span class="scroll-text">Scroll</span>
+        </div>
+    </section>
+
+    <!-- PILARES -->
+    <section class="pilares" id="pilares">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-tag" data-gsap="fade-up">Nossos Pilares</span>
+                <h2 class="section-title" data-gsap="split-text">Conhecimento que analisa.<br>Tecnologia que entrega.<br><span class="text-gradient">Estratégia que escala.</span></h2>
+            </div>
+            <div class="pilares__grid">
+                <div class="pilar-card" data-gsap="stagger-card">
+                    <div class="pilar-card__icon">
+                        <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="24" cy="24" r="20"/><path d="M24 14v10l7 7"/><circle cx="24" cy="24" r="4"/><path d="M14 10l3 3M34 10l-3 3M14 38l3-3M34 38l-3-3"/></svg>
+                    </div>
+                    <div class="pilar-card__number">01</div>
+                    <h3 class="pilar-card__title">Conhecimento</h3>
+                    <p class="pilar-card__text">Decisões baseadas em dados, análise profunda e visão estratégica. Investigamos, testamos e inovamos para encontrar caminhos mais eficientes.</p>
+                    <div class="pilar-card__glow"></div>
+                </div>
+                <div class="pilar-card" data-gsap="stagger-card">
+                    <div class="pilar-card__icon">
+                        <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="8" y="6" width="32" height="36" rx="4"/><path d="M16 16h16M16 24h16M16 32h8"/><circle cx="36" cy="36" r="8" fill="var(--color-bg)"/><path d="M33 36l2 2 4-4" stroke="var(--color-accent)"/></svg>
+                    </div>
+                    <div class="pilar-card__number">02</div>
+                    <h3 class="pilar-card__title">Tecnologia</h3>
+                    <p class="pilar-card__text">Ferramentas, automações e inteligência artificial que ampliam a capacidade técnica do seu marketing e elevam seu nível operacional.</p>
+                    <div class="pilar-card__glow"></div>
+                </div>
+                <div class="pilar-card" data-gsap="stagger-card">
+                    <div class="pilar-card__icon">
+                        <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 40l10-14 8 8 14-20"/><path d="M30 14h10v10"/><circle cx="18" cy="26" r="3"/><circle cx="26" cy="34" r="3"/></svg>
+                    </div>
+                    <div class="pilar-card__number">03</div>
+                    <h3 class="pilar-card__title">Estratégia</h3>
+                    <p class="pilar-card__text">Planejamento e execução integrados que transformam direcionamento em performance concreta — escala sustentável orientada por resultados.</p>
+                    <div class="pilar-card__glow"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- MARQUEE / TEXTO ROLANTE -->
+    <div class="marquee-section">
+        <div class="marquee-track">
+            <span class="marquee-item">Tráfego Pago</span>
+            <span class="marquee-dot">✦</span>
+            <span class="marquee-item">IA & Automação</span>
+            <span class="marquee-dot">✦</span>
+            <span class="marquee-item">Redes Sociais</span>
+            <span class="marquee-dot">✦</span>
+            <span class="marquee-item">Branding</span>
+            <span class="marquee-dot">✦</span>
+            <span class="marquee-item">SEO</span>
+            <span class="marquee-dot">✦</span>
+            <span class="marquee-item">CRM</span>
+            <span class="marquee-dot">✦</span>
+            <span class="marquee-item">Landing Pages</span>
+            <span class="marquee-dot">✦</span>
+            <span class="marquee-item">Conteúdo</span>
+            <span class="marquee-dot">✦</span>
+            <span class="marquee-item">Tráfego Pago</span>
+            <span class="marquee-dot">✦</span>
+            <span class="marquee-item">IA & Automação</span>
+            <span class="marquee-dot">✦</span>
+            <span class="marquee-item">Redes Sociais</span>
+            <span class="marquee-dot">✦</span>
+            <span class="marquee-item">Branding</span>
+            <span class="marquee-dot">✦</span>
+            <span class="marquee-item">SEO</span>
+            <span class="marquee-dot">✦</span>
+            <span class="marquee-item">CRM</span>
+            <span class="marquee-dot">✦</span>
+            <span class="marquee-item">Landing Pages</span>
+            <span class="marquee-dot">✦</span>
+            <span class="marquee-item">Conteúdo</span>
+            <span class="marquee-dot">✦</span>
+        </div>
+    </div>
+
+    <!-- SERVIÇOS -->
+    <section class="servicos" id="servicos">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-tag" data-gsap="fade-up">O que fazemos</span>
+                <h2 class="section-title" data-gsap="fade-up">Soluções que <span class="text-gradient">impulsionam</span> seu crescimento</h2>
+                <p class="section-subtitle" data-gsap="fade-up">Um ecossistema integrado de serviços para PMEs que buscam resultados reais e autonomia estratégica.</p>
+            </div>
+            <div class="servicos__grid">
+                <div class="servico-card" data-gsap="stagger-card">
+                    <div class="servico-card__header">
+                        <div class="servico-card__icon-wrap">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+                        </div>
+                        <span class="servico-card__tag">Core</span>
+                    </div>
+                    <h3 class="servico-card__title">Gestão de Tráfego Pago</h3>
+                    <p class="servico-card__text">Google Ads, Meta Ads e LinkedIn Ads com foco em ROI mensurável. Estratégia de lances inteligentes, segmentação avançada e otimização contínua.</p>
+                    <ul class="servico-card__list">
+                        <li>ROAS otimizado e previsível</li>
+                        <li>Testes A/B contínuos</li>
+                        <li>Integração com CRM</li>
+                    </ul>
+                </div>
+                <div class="servico-card" data-gsap="stagger-card">
+                    <div class="servico-card__header">
+                        <div class="servico-card__icon-wrap">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2a10 10 0 110 20 10 10 0 010-20z"/><path d="M12 6v6l4 2"/><path d="M16 2s2 2 2 4-2 4-2 4"/><path d="M8 2s-2 2-2 4 2 4 2 4"/></svg>
+                        </div>
+                        <span class="servico-card__tag">Inovação</span>
+                    </div>
+                    <h3 class="servico-card__title">IA & Automação</h3>
+                    <p class="servico-card__text">Chatbots inteligentes, agentes de IA para pré-vendas e automação de campanhas. Amplifique seus resultados com tecnologia que aprende e otimiza.</p>
+                    <ul class="servico-card__list">
+                        <li>Qualificação automática de leads</li>
+                        <li>IA agêntica para social selling</li>
+                        <li>Análise preditiva</li>
+                    </ul>
+                </div>
+                <div class="servico-card" data-gsap="stagger-card">
+                    <div class="servico-card__header">
+                        <div class="servico-card__icon-wrap">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/></svg>
+                        </div>
+                        <span class="servico-card__tag">Performance</span>
+                    </div>
+                    <h3 class="servico-card__title">Redes Sociais</h3>
+                    <p class="servico-card__text">Gestão estratégica de Facebook, Instagram, LinkedIn e TikTok. Conteúdo que gera engajamento e reforça as mensagens das suas campanhas.</p>
+                    <ul class="servico-card__list">
+                        <li>Social selling via WhatsApp</li>
+                        <li>Programa de creators internos</li>
+                        <li>Conteúdo estratégico</li>
+                    </ul>
+                </div>
+                <div class="servico-card" data-gsap="stagger-card">
+                    <div class="servico-card__header">
+                        <div class="servico-card__icon-wrap">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
+                        </div>
+                        <span class="servico-card__tag">Ecossistema</span>
+                    </div>
+                    <h3 class="servico-card__title">Ecossistema Integrado</h3>
+                    <p class="servico-card__text">CRM, branding, produção de conteúdo, landing pages e consultoria em RevOps. Todas as frentes trabalhando em sinergia para o seu crescimento.</p>
+                    <ul class="servico-card__list">
+                        <li>Soluções end-to-end</li>
+                        <li>Dados compartilhados</li>
+                        <li>Redução de custos</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- RESULTADOS -->
+    <section class="resultados" id="resultados">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-tag" data-gsap="fade-up">Resultados</span>
+                <h2 class="section-title" data-gsap="fade-up">Números que <span class="text-gradient">comprovam</span></h2>
+            </div>
+            <div class="resultados__grid">
+                <div class="resultado-item" data-gsap="stagger-card">
+                    <div class="resultado-item__number" data-counter="40">0</div>
+                    <div class="resultado-item__suffix">%</div>
+                    <p class="resultado-item__label">Aumento médio em vendas no 1º ano</p>
+                </div>
+                <div class="resultado-item" data-gsap="stagger-card">
+                    <div class="resultado-item__number" data-counter="150">0</div>
+                    <div class="resultado-item__suffix">+</div>
+                    <p class="resultado-item__label">Projetos entregues com sucesso</p>
+                </div>
+                <div class="resultado-item" data-gsap="stagger-card">
+                    <div class="resultado-item__number" data-counter="3">0</div>
+                    <div class="resultado-item__suffix">x</div>
+                    <p class="resultado-item__label">ROAS médio nas campanhas</p>
+                </div>
+                <div class="resultado-item" data-gsap="stagger-card">
+                    <div class="resultado-item__number" data-counter="85">0</div>
+                    <div class="resultado-item__suffix">%</div>
+                    <p class="resultado-item__label">Taxa de retenção de clientes</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ECOSSISTEMA / RODA DE SERVIÇOS -->
+    <section class="wheel-section" id="sobre">
+        <div class="wheel-section__inner">
+            <!-- LADO ESQUERDO — Info do Serviço Ativo -->
+            <div class="wheel-info" id="wheel-info">
+                <span class="section-tag">Nosso Ecossistema</span>
+                <div class="wheel-info__counter">
+                    <span class="wheel-info__current" id="wheel-counter">01</span>
+                    <span class="wheel-info__sep">/</span>
+                    <span class="wheel-info__total">06</span>
+                </div>
+
+                <!-- Panel 0: CRM -->
+                <div class="wheel-info__panel active" data-panel="0">
+                    <h2 class="wheel-info__title">CRM & Vendas</h2>
+                    <p class="wheel-info__desc">Gestão completa do relacionamento com seus clientes. Pipeline de vendas otimizado, automação de follow-ups e visão 360° de cada lead — tudo integrado com suas campanhas.</p>
+                    <ul class="wheel-info__features">
+                        <li>Pipeline inteligente</li>
+                        <li>Automação de follow-up</li>
+                        <li>Score de leads com IA</li>
+                        <li>Integração com ads</li>
+                    </ul>
+                </div>
+                <!-- Panel 1: Tráfego -->
+                <div class="wheel-info__panel" data-panel="1">
+                    <h2 class="wheel-info__title">Gestão de Tráfego Pago</h2>
+                    <p class="wheel-info__desc">Google Ads, Meta Ads e LinkedIn Ads com foco em ROI mensurável. Estratégia de lances inteligentes, segmentação avançada e otimização contínua baseada em dados.</p>
+                    <ul class="wheel-info__features">
+                        <li>ROAS otimizado e previsível</li>
+                        <li>Testes A/B contínuos</li>
+                        <li>Segmentação avançada</li>
+                        <li>Remarketing inteligente</li>
+                    </ul>
+                </div>
+                <!-- Panel 2: IA -->
+                <div class="wheel-info__panel" data-panel="2">
+                    <h2 class="wheel-info__title">IA & Automação</h2>
+                    <p class="wheel-info__desc">Chatbots inteligentes, agentes de IA para pré-vendas e automação de campanhas. Tecnologia que aprende, otimiza e amplia a capacidade do seu time.</p>
+                    <ul class="wheel-info__features">
+                        <li>Qualificação automática de leads</li>
+                        <li>IA agêntica para social selling</li>
+                        <li>Análise preditiva</li>
+                        <li>Chatbots personalizados</li>
+                    </ul>
+                </div>
+                <!-- Panel 3: Content -->
+                <div class="wheel-info__panel" data-panel="3">
+                    <h2 class="wheel-info__title">Conteúdo Estratégico</h2>
+                    <p class="wheel-info__desc">Criação de conteúdo que engaja e converte. Social media, vídeos, stories e materiais editoriais 100% alinhados com suas campanhas de performance.</p>
+                    <ul class="wheel-info__features">
+                        <li>Social media management</li>
+                        <li>Produção de vídeo</li>
+                        <li>Copywriting estratégico</li>
+                        <li>Programa de creators internos</li>
+                    </ul>
+                </div>
+                <!-- Panel 4: Dados -->
+                <div class="wheel-info__panel" data-panel="4">
+                    <h2 class="wheel-info__title">Dados & Analytics</h2>
+                    <p class="wheel-info__desc">Dashboards em tempo real, relatórios de performance e insights acionáveis. Cada decisão guiada por dados concretos e métricas que importam.</p>
+                    <ul class="wheel-info__features">
+                        <li>Dashboards real-time</li>
+                        <li>Atribuição multi-touch</li>
+                        <li>Relatórios automáticos</li>
+                        <li>Insights potencializados por IA</li>
+                    </ul>
+                </div>
+                <!-- Panel 5: Branding -->
+                <div class="wheel-info__panel" data-panel="5">
+                    <h2 class="wheel-info__title">Branding & Design</h2>
+                    <p class="wheel-info__desc">Identidade visual que posiciona e diferencia. Logo, materiais impressos, landing pages e todo o ecossistema visual da sua marca com coerência e impacto.</p>
+                    <ul class="wheel-info__features">
+                        <li>Identidade visual completa</li>
+                        <li>Landing pages de alta conversão</li>
+                        <li>UI/UX Design</li>
+                        <li>Material impresso e digital</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- LADO DIREITO — Roda Gigante -->
+            <div class="wheel-visual" id="wheel-visual">
+                <div class="wheel-circle" id="wheel-circle">
+                    <!-- Anéis decorativos -->
+                    <div class="wheel-ring wheel-ring--outer"></div>
+                    <div class="wheel-ring wheel-ring--inner"></div>
+                    <!-- Rotator (vai girar) -->
+                    <div class="wheel-rotator" id="wheel-rotator">
+                        <!-- Centro -->
+                        <div class="wheel-center">
+                            <img src="assets/icon.png" alt="Dígitha" class="wheel-center__img">
+                        </div>
+                        <!-- Nodes posicionados via JS -->
+                        <div class="wheel-node active" data-node="0"><span>CRM</span></div>
+                        <div class="wheel-node" data-node="1"><span>Tráfego</span></div>
+                        <div class="wheel-node" data-node="2"><span>IA</span></div>
+                        <div class="wheel-node" data-node="3"><span>Content</span></div>
+                        <div class="wheel-node" data-node="4"><span>Dados</span></div>
+                        <div class="wheel-node" data-node="5"><span>Branding</span></div>
+                        <!-- Connection lines -->
+                        <svg class="wheel-connections" viewBox="0 0 700 700" fill="none">
+                            <line class="wheel-line" data-line="0" stroke="rgba(0,229,255,0.15)" stroke-width="1"/>
+                            <line class="wheel-line" data-line="1" stroke="rgba(0,229,255,0.15)" stroke-width="1"/>
+                            <line class="wheel-line" data-line="2" stroke="rgba(0,229,255,0.15)" stroke-width="1"/>
+                            <line class="wheel-line" data-line="3" stroke="rgba(0,229,255,0.15)" stroke-width="1"/>
+                            <line class="wheel-line" data-line="4" stroke="rgba(0,229,255,0.15)" stroke-width="1"/>
+                            <line class="wheel-line" data-line="5" stroke="rgba(0,229,255,0.15)" stroke-width="1"/>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Progress dots -->
+            <div class="wheel-dots" id="wheel-dots">
+                <button class="wheel-dot active" data-dot="0" aria-label="CRM"></button>
+                <button class="wheel-dot" data-dot="1" aria-label="Tráfego"></button>
+                <button class="wheel-dot" data-dot="2" aria-label="IA"></button>
+                <button class="wheel-dot" data-dot="3" aria-label="Content"></button>
+                <button class="wheel-dot" data-dot="4" aria-label="Dados"></button>
+                <button class="wheel-dot" data-dot="5" aria-label="Branding"></button>
+            </div>
+        </div>
+    </section>
+
+    <!-- CLIENTES -->
+    <section class="clientes" id="clientes">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-tag" data-gsap="fade-up">Clientes</span>
+                <h2 class="section-title" data-gsap="fade-up">Empresas que <span class="text-gradient">confiam</span> na Dígitha</h2>
+            </div>
+            <div class="clientes__grid">
+                <div class="cliente-logo" data-gsap="stagger-card">Corius</div>
+                <div class="cliente-logo" data-gsap="stagger-card">Tornadolog</div>
+                <div class="cliente-logo" data-gsap="stagger-card">The Wine Pub</div>
+                <div class="cliente-logo" data-gsap="stagger-card">Rainha do Porcelanato</div>
+                <div class="cliente-logo" data-gsap="stagger-card">Life Unic</div>
+                <div class="cliente-logo" data-gsap="stagger-card">Link-se</div>
+                <div class="cliente-logo" data-gsap="stagger-card">Comténica</div>
+                <div class="cliente-logo" data-gsap="stagger-card">Asitech</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA FINAL -->
+    <section class="cta-final" id="contato">
+        <div class="container">
+            <div class="cta-final__content">
+                <div class="cta-final__text">
+                    <span class="section-tag" data-gsap="fade-up">Vamos conversar?</span>
+                    <h2 class="section-title" data-gsap="fade-up">Seu crescimento <span class="text-gradient">começa aqui.</span></h2>
+                    <p class="cta-final__subtitle" data-gsap="fade-up">Apenas empresas selecionadas por semana. Agende sua análise gratuita e descubra como escalar com tráfego pago + IA.</p>
+                    <a href="https://wa.me/5548999127745?text=Olá!%20Quero%20agendar%20uma%20análise%20gratuita%20com%20a%20Dígitha." class="btn btn--primary btn--large" id="final-cta" data-gsap="fade-up">
+                        <svg class="btn-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                        Agendar análise gratuita
+                    </a>
+                    <p class="cta-final__note" data-gsap="fade-up">⚡ Vagas limitadas — Apenas 3 empresas por semana</p>
+                </div>
+                <div class="cta-final__form-wrap" data-gsap="fade-up">
+                    <form class="contact-form" id="contact-form">
+                        <h3 class="contact-form__title">Ou deixe seus dados</h3>
+                        <div class="form-group">
+                            <input type="text" id="form-name" placeholder="Seu nome" required>
+                        </div>
+                        <div class="form-group">
+                            <input type="email" id="form-email" placeholder="Seu e-mail" required>
+                        </div>
+                        <div class="form-group">
+                            <input type="tel" id="form-phone" placeholder="Seu WhatsApp" required>
+                        </div>
+                        <div class="form-group">
+                            <select id="form-revenue">
+                                <option value="" disabled selected>Faturamento mensal</option>
+                                <option value="ate-50k">Até R$ 50 mil</option>
+                                <option value="50k-200k">R$ 50 mil - R$ 200 mil</option>
+                                <option value="200k-500k">R$ 200 mil - R$ 500 mil</option>
+                                <option value="500k-1m">R$ 500 mil - R$ 1 milhão</option>
+                                <option value="acima-1m">Acima de R$ 1 milhão</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn--primary btn--block" id="form-submit">
+                            Quero escalar meu negócio
+                            <svg class="btn-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer__grid">
+                <div class="footer__brand">
+                    <img src="assets/logo.png" alt="Dígitha" class="footer__logo-img">
+                    <p class="footer__tagline">A extensão inteligente do seu marketing.</p>
+                    <div class="footer__social">
+                        <a href="#" class="social-link" aria-label="Instagram" id="social-instagram">
+                            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
+                        </a>
+                        <a href="#" class="social-link" aria-label="Facebook" id="social-facebook">
+                            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+                        </a>
+                        <a href="#" class="social-link" aria-label="LinkedIn" id="social-linkedin">
+                            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+                        </a>
+                        <a href="https://wa.me/5548999127745" class="social-link" aria-label="WhatsApp" id="social-whatsapp">
+                            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                        </a>
+                    </div>
+                </div>
+                <div class="footer__links">
+                    <h4>Links</h4>
+                    <a href="#pilares">Pilares</a>
+                    <a href="#servicos">Serviços</a>
+                    <a href="#resultados">Resultados</a>
+                    <a href="#sobre">Sobre</a>
+                    <a href="#contato">Contato</a>
+                </div>
+                <div class="footer__contact">
+                    <h4>Contato</h4>
+                    <p>📍 Rua Osni João Vieira, 383 - 3º Andar<br>Campinas - São José/SC</p>
+                    <p>📧 contato@digitha.com.br</p>
+                    <p>📱 (48) 99912-7745</p>
+                </div>
+            </div>
+            <div class="footer__bottom">
+                <p>&copy; 2026 Dígitha — Grupo Linkse. Todos os direitos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- WHATSAPP FLOAT -->
+    <a href="https://wa.me/5548999127745?text=Olá!%20Vim%20pelo%20site%20e%20quero%20saber%20mais!" class="whatsapp-float" id="whatsapp-float" aria-label="Contato WhatsApp">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+    </a>
+
+    <!-- GSAP CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
