@@ -5,6 +5,12 @@
 
 gsap.registerPlugin(ScrollTrigger);
 
+// Sempre volta ao topo no refresh
+if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+window.scrollTo(0, 0);
+window.addEventListener('beforeunload', () => window.scrollTo(0, 0));
+window.addEventListener('load', () => window.scrollTo(0, 0));
+
 // Motion (motion.dev) — disponível via window.Motion
 const { animate: motionAnimate, hover, press, inView } = Motion;
 
