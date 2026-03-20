@@ -1004,6 +1004,19 @@ button, input, select, textarea {
     position: relative;
     z-index: 3;
 }
+.wheel-info::before {
+    content: '';
+    position: absolute;
+    left: -2%;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 75%;
+    aspect-ratio: 3890 / 4005;
+    background: url('assets/icon-d.png') center/contain no-repeat;
+    opacity: 0.07;
+    z-index: 0;
+    pointer-events: none;
+}
 .wheel-info .section-tag { margin-bottom: 12px; }
 .wheel-info__counter {
     display: flex;
@@ -1011,6 +1024,8 @@ button, input, select, textarea {
     gap: 4px;
     margin-bottom: 32px;
     font-family: var(--font-display);
+    position: relative;
+    z-index: 1;
 }
 .wheel-info__current {
     font-size: 2rem;
@@ -1034,6 +1049,7 @@ button, input, select, textarea {
     transition: opacity 0.4s ease, transform 0.4s ease;
     pointer-events: none;
     max-width: 480px;
+    z-index: 1;
 }
 .wheel-info__panel.active {
     position: relative;
