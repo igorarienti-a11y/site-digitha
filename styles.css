@@ -501,7 +501,7 @@ button, input, select, textarea {
 
 /* ---------- SOBRE A EMPRESA ---------- */
 .sobre-empresa {
-    padding: 140px 0;
+    padding: 140px 0 60px;
     background: var(--color-bg);
     position: relative;
     overflow: hidden;
@@ -1010,7 +1010,7 @@ button, input, select, textarea {
     left: -2%;
     top: 50%;
     transform: translateY(-50%);
-    width: 75%;
+    width: 110%;
     aspect-ratio: 3890 / 4005;
     background: url('assets/icon-d.png') center/contain no-repeat;
     opacity: 0.07;
@@ -1787,4 +1787,17 @@ button, input, select, textarea {
         height: 500px;
     }
     .wheel-dots { left: 16px; }
+}
+
+/* TYPING CURSOR */
+.typing-cursor {
+    display: inline-block;
+    color: var(--color-accent);
+    font-weight: 300;
+    animation: blink-cursor 0.7s step-end infinite;
+    margin-left: 2px;
+}
+@keyframes blink-cursor {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
 }

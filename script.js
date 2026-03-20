@@ -657,10 +657,10 @@ function initAnimations() {
                 ease: 'power3.out',
                 scrollTrigger: {
                     trigger: foto,
-                    start: 'top 82%',
+                    start: 'top 95%',
                     toggleActions: 'play none none none',
                 },
-                delay: i * 0.12,
+                delay: i * 0.08,
             });
 
             // Inner parallax (scale down + y drift as image scrolls through viewport)
@@ -684,12 +684,12 @@ function initAnimations() {
         gsap.from('.sobre-foto', {
             y: 60,
             opacity: 0,
-            stagger: 0.18,
+            stagger: 0.12,
             duration: 0.9,
             ease: 'power3.out',
             scrollTrigger: {
                 trigger: '.sobre-empresa__gallery',
-                start: 'top 80%',
+                start: 'top 95%',
                 toggleActions: 'play none none none',
             },
         });
@@ -880,5 +880,53 @@ function initAnimations() {
             once: true,
         });
     });
+
+
+    // =========================================
+    // TYPING EFFECT — CTA Final title
+    // =========================================
+    const ctaTitle = document.getElementById('cta-typing-title');
+    if (ctaTitle) {
+        const plainText = 'Seu crescimento ';
+        const gradientText = 'começa aqui.';
+
+        const cursor = document.createElement('span');
+        cursor.className = 'typing-cursor';
+        cursor.textContent = '|';
+
+        ctaTitle.textContent = '';
+        ctaTitle.appendChild(cursor);
+
+        ScrollTrigger.create({
+            trigger: ctaTitle,
+            start: 'top 85%',
+            once: true,
+            onEnter: () => {
+                const textNode = document.createTextNode('');
+                ctaTitle.insertBefore(textNode, cursor);
+                let i = 0;
+
+                const typePlain = setInterval(() => {
+                    if (i < plainText.length) {
+                        textNode.textContent += plainText[i++];
+                    } else {
+                        clearInterval(typePlain);
+                        const gradSpan = document.createElement('span');
+                        gradSpan.className = 'text-gradient';
+                        ctaTitle.insertBefore(gradSpan, cursor);
+                        let j = 0;
+                        const typeGrad = setInterval(() => {
+                            if (j < gradientText.length) {
+                                gradSpan.textContent += gradientText[j++];
+                            } else {
+                                clearInterval(typeGrad);
+                                cursor.style.display = 'none';
+                            }
+                        }, 65);
+                    }
+                }, 55);
+            }
+        });
+    }
 
 } // end initAnimations
