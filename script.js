@@ -1,9 +1,15 @@
 /* =============================================
-   DÍGITHA LANDING PAGE — GSAP v3
+   DÍGITHA LANDING PAGE — GSAP v3 + Motion
    Services Wheel with ScrollTrigger Pin + Entrance + Rotation
    ============================================= */
 
 gsap.registerPlugin(ScrollTrigger);
+
+// Motion (motion.dev) — disponível via window.Motion
+const { animate: motionAnimate, hover, press, inView } = Motion;
+
+// Evita refreshes desnecessários quando o teclado mobile aparece/some
+ScrollTrigger.config({ ignoreMobileResize: true });
 
 // =========================================
 // PRELOADER
@@ -23,6 +29,18 @@ window.addEventListener('load', () => {
 });
 
 function initAnimations() {
+
+    // =========================================
+    // SCROLL PROGRESS BAR
+    // =========================================
+    const progressBar = document.createElement('div');
+    progressBar.className = 'scroll-progress';
+    document.body.appendChild(progressBar);
+    ScrollTrigger.create({
+        start: 'top top',
+        end: 'max',
+        onUpdate: (self) => gsap.set(progressBar, { scaleX: self.progress }),
+    });
 
     // =========================================
     // HEADER SCROLL EFFECT
@@ -75,19 +93,64 @@ function initAnimations() {
     });
 
     // =========================================
-    // SECTION FADE-UP — Scroll triggered
+    // SECTION FADE-UP — Clip-path reveal
     // =========================================
     gsap.utils.toArray('[data-gsap="fade-up"]').forEach(el => {
         gsap.from(el, {
             scrollTrigger: {
                 trigger: el,
-                start: 'top 85%',
+                start: 'top 88%',
                 toggleActions: 'play none none none',
             },
             opacity: 0,
-            y: 50,
-            duration: 0.8,
+            y: 40,
+            clipPath: 'inset(0 0 100% 0)',
+            duration: 0.9,
             ease: 'power3.out',
+        });
+    });
+
+    // =========================================
+    // LETTER BOUNCE — Split chars, animate L→R
+    // =========================================
+    gsap.utils.toArray('[data-gsap="letter-bounce"]').forEach(el => {
+        const units = []; // cada unidade animável: char span ou word span
+
+        [...el.childNodes].forEach(node => {
+            if (node.nodeType === Node.TEXT_NODE) {
+                const text = node.textContent;
+                const frag = document.createDocumentFragment();
+                [...text].forEach(ch => {
+                    const s = document.createElement('span');
+                    s.className = 'char';
+                    s.textContent = ch === ' ' ? '\u00A0' : ch;
+                    frag.appendChild(s);
+                    units.push(s);
+                });
+                node.replaceWith(frag);
+            } else if (node.nodeType === Node.ELEMENT_NODE) {
+                // Span com gradiente: anima como unidade inteira para preservar o gradient
+                node.classList.add('char');
+                units.push(node);
+            }
+        });
+
+        gsap.set(units, { opacity: 0, y: 60, rotationZ: () => gsap.utils.random(-12, 12) });
+
+        ScrollTrigger.create({
+            trigger: el,
+            start: 'top 85%',
+            onEnter: () => {
+                gsap.to(units, {
+                    opacity: 1,
+                    y: 0,
+                    rotationZ: 0,
+                    duration: 0.55,
+                    stagger: 0.03,
+                    ease: 'back.out(2.5)',
+                });
+            },
+            once: true,
         });
     });
 
@@ -103,7 +166,7 @@ function initAnimations() {
     });
 
     Object.values(cardGroups).forEach(cards => {
-        gsap.set(cards, { opacity: 0, y: 60, scale: 0.95 });
+        gsap.set(cards, { opacity: 0, y: 70, scale: 0.92, rotationX: 12, transformPerspective: 800 });
         ScrollTrigger.create({
             trigger: cards[0].parentElement,
             start: 'top 80%',
@@ -112,9 +175,10 @@ function initAnimations() {
                     opacity: 1,
                     y: 0,
                     scale: 1,
-                    duration: 0.7,
+                    rotationX: 0,
+                    duration: 0.8,
                     stagger: 0.12,
-                    ease: 'back.out(1.2)',
+                    ease: 'back.out(1.4)',
                 });
             },
             once: true,
@@ -178,8 +242,6 @@ function initAnimations() {
     const wheelPanels   = document.querySelectorAll('.wheel-info__panel');
     const wheelDots     = document.querySelectorAll('.wheel-dot');
     const wheelCounter  = document.getElementById('wheel-counter');
-    const wheelLines    = document.querySelectorAll('.wheel-line');
-
     let currentActiveIndex = 0;
 
     // ── Position nodes around the circle ──────────────────────────
@@ -197,24 +259,13 @@ function initAnimations() {
             node.style.left = (cx + radius * Math.cos(rad) - ns / 2) + 'px';
             node.style.top  = (cy + radius * Math.sin(rad) - ns / 2) + 'px';
         });
-
-        // Draw connection lines from center to each node
-        const svgSize = 700; // matches viewBox
-        const svgScale = svgSize / size;
-        wheelLines.forEach((line, i) => {
-            const deg = 180 + i * ANGLE_PER_SERVICE;
-            const rad = deg * Math.PI / 180;
-            const nx  = (cx + radius * Math.cos(rad)) * svgScale;
-            const ny  = (cy + radius * Math.sin(rad)) * svgScale;
-            line.setAttribute('x1', cx * svgScale);
-            line.setAttribute('y1', cy * svgScale);
-            line.setAttribute('x2', nx);
-            line.setAttribute('y2', ny);
-        });
     }
 
     positionNodes();
     window.addEventListener('resize', () => { positionNodes(); ScrollTrigger.refresh(); });
+    window.addEventListener('orientationchange', () => {
+        setTimeout(() => { positionNodes(); ScrollTrigger.refresh(); }, 300);
+    });
 
     // ── Switch active service ──────────────────────────────────────
     function setActiveService(index) {
@@ -224,38 +275,34 @@ function initAnimations() {
         wheelNodes.forEach((n, i)  => n.classList.toggle('active', i === index));
         wheelDots.forEach((d, i)   => d.classList.toggle('active', i === index));
 
-        wheelLines.forEach((l, i) => {
-            if (i === index) {
-                l.setAttribute('stroke', 'rgba(0,229,255,0.6)');
-                l.setAttribute('stroke-width', '2');
-            } else {
-                l.setAttribute('stroke', 'rgba(0,229,255,0.15)');
-                l.setAttribute('stroke-width', '1');
-            }
-        });
-
         wheelCounter.textContent = String(index + 1).padStart(2, '0');
         currentActiveIndex = index;
     }
 
     // ── Initial state: wheel off-screen right ──────────────────────
-    gsap.set(wheelVisual, { x: 350, opacity: 0 });
+    const isMobile = window.innerWidth <= 768;
+    const ENTRANCE_X = isMobile ? 180 : 350;
+    gsap.set(wheelVisual, { x: ENTRANCE_X, opacity: 0 });
     setActiveService(0);
 
-    // ── Scroll budget ──────────────────────────────────────────────
-    const ENTRANCE_PX   = 500;                              // px used for slide-in
-    const ROTATION_PX   = 700 * (TOTAL_SERVICES - 1);      // 700px per service step
-    const TOTAL_SCROLL  = ENTRANCE_PX + ROTATION_PX;       // total pinned scroll
+    // ── Scroll budget (reduzido no mobile para evitar travamento) ──
+    const ENTRANCE_PX   = isMobile ? 300 : 500;
+    const STEP_PX       = isMobile ? 450 : 700;
+    const ROTATION_PX   = STEP_PX * (TOTAL_SERVICES - 1);
+    const TOTAL_SCROLL  = ENTRANCE_PX + ROTATION_PX;
 
-    const ENTRANCE_FRAC = ENTRANCE_PX / TOTAL_SCROLL;      // 0–entrance_frac → slide in
-    const ROTATE_FRAC   = 1 - ENTRANCE_FRAC;               // remainder → rotate
+    const ENTRANCE_FRAC = ENTRANCE_PX / TOTAL_SCROLL;
+    const ROTATE_FRAC   = 1 - ENTRANCE_FRAC;
 
     ScrollTrigger.create({
         trigger: wheelSection,
         start: 'top top',
         end: `+=${TOTAL_SCROLL}`,
         pin: true,
-        scrub: 1,           // 1s smoothing for fluid feel
+        anticipatePin: 1,
+        scrub: 1,
+        invalidateOnRefresh: true,
+        onRefresh: positionNodes,
         onUpdate: (self) => {
             const p = self.progress; // 0 → 1
 
@@ -265,8 +312,8 @@ function initAnimations() {
                 const eased = gsap.parseEase('power2.out')(ep);
 
                 gsap.set(wheelVisual, {
-                    x: 350 * (1 - eased),
-                    opacity: Math.min(ep * 2, 1),           // fade in quickly
+                    x: ENTRANCE_X * (1 - eased),
+                    opacity: Math.min(ep * 2, 1),
                 });
 
                 // Keep rotation at 0 and first service active
@@ -331,10 +378,10 @@ function initAnimations() {
             trigger: '.hero',
             start: 'top top',
             end: 'bottom top',
-            scrub: 1,
+            scrub: true,
+            invalidateOnRefresh: true,
         },
         y: 80,
-        opacity: 0.3,
         ease: 'none',
     });
 
@@ -379,7 +426,7 @@ function initAnimations() {
             this.speedX  = (Math.random() - 0.5) * 0.3;
             this.speedY  = (Math.random() - 0.5) * 0.3;
             this.opacity = Math.random() * 0.4 + 0.1;
-            this.hue     = Math.random() > 0.7 ? 280 : 187;
+            this.hue     = Math.random() > 0.7 ? 35 : 21;
         }
         update() {
             this.x += this.speedX;
@@ -421,7 +468,7 @@ function initAnimations() {
                     ctx.beginPath();
                     ctx.moveTo(particles[i].x, particles[i].y);
                     ctx.lineTo(particles[j].x, particles[j].y);
-                    ctx.strokeStyle = `rgba(0,229,255,${(1 - dist / 150) * 0.12})`;
+                    ctx.strokeStyle = `rgba(232,82,26,${(1 - dist / 150) * 0.12})`;
                     ctx.lineWidth = 0.5;
                     ctx.stroke();
                 }
@@ -536,6 +583,284 @@ function initAnimations() {
                     link.classList.add('active');
                 }
             }
+        });
+    });
+
+    // =========================================
+    // WORD CAROUSEL — Pilares vertical ticker
+    // =========================================
+    const carouselTrack = document.querySelector('.word-carousel__track');
+    if (carouselTrack) {
+        const words    = carouselTrack.querySelectorAll('span');
+        const itemH    = () => words[0].offsetHeight;
+        let   current  = 0;
+        let   carousel_timer;
+
+        function nextWord() {
+            current++;
+            gsap.to(carouselTrack, {
+                y: -(current * itemH()),
+                duration: 0.6,
+                ease: 'back.inOut(1.7)',
+                onComplete: () => {
+                    // Último é duplicata do primeiro → reset silencioso
+                    if (current >= words.length - 1) {
+                        current = 0;
+                        gsap.set(carouselTrack, { y: 0 });
+                    }
+                    carousel_timer = setTimeout(nextWord, 1500);
+                },
+            });
+        }
+
+        // Inicia quando a seção entra na tela
+        ScrollTrigger.create({
+            trigger: '.pilares',
+            start: 'top 80%',
+            onEnter: () => { carousel_timer = setTimeout(nextWord, 1500); },
+            onLeave: () => clearTimeout(carousel_timer),
+            onEnterBack: () => { carousel_timer = setTimeout(nextWord, 1500); },
+            onLeaveBack: () => clearTimeout(carousel_timer),
+        });
+    }
+
+    // =========================================
+    // SOBRE A EMPRESA — Parallax Gallery + Counters
+    // =========================================
+    (function initSobreEmpresa() {
+        // --- Image reveal: clip-path wipe from bottom ---
+        const fotos = document.querySelectorAll('.js-sobre-foto');
+        fotos.forEach((foto, i) => {
+            const inner = foto.querySelector('.sobre-foto__inner');
+            if (!inner) return;
+
+            gsap.to(inner, {
+                clipPath: 'inset(0% 0 0 0)',
+                duration: 1,
+                ease: 'power3.out',
+                scrollTrigger: {
+                    trigger: foto,
+                    start: 'top 82%',
+                    toggleActions: 'play none none none',
+                },
+                delay: i * 0.12,
+            });
+
+            // Inner parallax (scale down + y drift as image scrolls through viewport)
+            const imgEl = inner.querySelector('img');
+            if (imgEl) {
+                gsap.to(imgEl, {
+                    y: -40,
+                    scale: 1,
+                    ease: 'none',
+                    scrollTrigger: {
+                        trigger: foto,
+                        start: 'top bottom',
+                        end: 'bottom top',
+                        scrub: 1.5,
+                    },
+                });
+            }
+        });
+
+        // --- Stagger the whole gallery items on enter ---
+        gsap.from('.sobre-foto', {
+            y: 60,
+            opacity: 0,
+            stagger: 0.18,
+            duration: 0.9,
+            ease: 'power3.out',
+            scrollTrigger: {
+                trigger: '.sobre-empresa__gallery',
+                start: 'top 80%',
+                toggleActions: 'play none none none',
+            },
+        });
+
+        // --- Left narrative: slide in from left ---
+        gsap.from('.sobre-empresa__narrative', {
+            x: -50,
+            opacity: 0,
+            duration: 1,
+            ease: 'power3.out',
+            scrollTrigger: {
+                trigger: '.sobre-empresa__narrative',
+                start: 'top 80%',
+                toggleActions: 'play none none none',
+            },
+        });
+
+        // --- Stats counter animation ---
+        const statNums = document.querySelectorAll('[data-sobre-counter]');
+        statNums.forEach(el => {
+            const target = parseInt(el.dataset.sobreCounter, 10);
+            const prefix = el.dataset.prefix || '';
+            const suffix = el.dataset.suffix || '';
+            ScrollTrigger.create({
+                trigger: el,
+                start: 'top 85%',
+                once: true,
+                onEnter: () => {
+                    gsap.to({ val: 0 }, {
+                        val: target,
+                        duration: 1.8,
+                        ease: 'power2.out',
+                        onUpdate: function () {
+                            el.textContent = prefix + Math.round(this.targets()[0].val) + suffix;
+                        },
+                    });
+                },
+            });
+        });
+
+        // --- Diferenciais stagger ---
+        gsap.from('.sobre-diferencial', {
+            y: 20,
+            opacity: 0,
+            stagger: 0.1,
+            duration: 0.6,
+            ease: 'power2.out',
+            scrollTrigger: {
+                trigger: '.sobre-diferenciais',
+                start: 'top 85%',
+                toggleActions: 'play none none none',
+            },
+        });
+    })();
+
+    // =========================================
+    // TEXT SCRAMBLE — Section tags on scroll
+    // =========================================
+    class TextScramble {
+        constructor(el) {
+            this.el = el;
+            this.chars = '01アイウエオABCDEF!#%@<>';
+            this.update = this.update.bind(this);
+        }
+        run() {
+            const original = this.el.textContent;
+            this.queue = original.split('').map((char, i) => ({
+                from: char,
+                to: char,
+                start: Math.floor(i * 0.8),
+                end: Math.floor(i * 0.8) + Math.floor(Math.random() * 8) + 4,
+                char: '',
+            }));
+            this.frame = 0;
+            cancelAnimationFrame(this.raf);
+            this.update();
+        }
+        update() {
+            let out = '';
+            let done = 0;
+            for (const item of this.queue) {
+                if (this.frame >= item.end) {
+                    done++;
+                    out += item.to;
+                } else if (this.frame >= item.start) {
+                    if (!item.char || Math.random() < 0.3)
+                        item.char = this.chars[Math.floor(Math.random() * this.chars.length)];
+                    out += `<span class="scramble-char">${item.char}</span>`;
+                } else {
+                    out += item.from;
+                }
+            }
+            this.el.innerHTML = out;
+            if (done < this.queue.length) {
+                this.frame++;
+                this.raf = requestAnimationFrame(this.update);
+            }
+        }
+    }
+
+    document.querySelectorAll('.section-tag').forEach(tag => {
+        const fx = new TextScramble(tag);
+        ScrollTrigger.create({
+            trigger: tag,
+            start: 'top 90%',
+            onEnter: () => fx.run(),
+            once: true,
+        });
+    });
+
+    // =========================================
+    // CUSTOM CURSOR — Desktop only
+    // =========================================
+    const isTouch = window.matchMedia('(pointer: coarse)').matches;
+    if (!isTouch) {
+        const cursorDot  = document.createElement('div');
+        const cursorRing = document.createElement('div');
+        cursorDot.className  = 'cursor-dot';
+        cursorRing.className = 'cursor-ring';
+        document.body.appendChild(cursorDot);
+        document.body.appendChild(cursorRing);
+
+        let curX = 0, curY = 0;
+        window.addEventListener('mousemove', (e) => {
+            curX = e.clientX;
+            curY = e.clientY;
+            gsap.set(cursorDot, { x: curX, y: curY });
+            gsap.to(cursorRing, { x: curX, y: curY, duration: 0.18, ease: 'power2.out' });
+        });
+
+        const interactives = document.querySelectorAll('a, button, .pilar-card, .servico-card, .wheel-node, .resultado-item');
+        interactives.forEach(el => {
+            el.addEventListener('mouseenter', () => {
+                gsap.to(cursorRing, { scale: 2.2, borderColor: 'var(--color-accent)', duration: 0.3 });
+                gsap.to(cursorDot,  { scale: 0, duration: 0.2 });
+            });
+            el.addEventListener('mouseleave', () => {
+                gsap.to(cursorRing, { scale: 1, borderColor: 'rgba(232,82,26,0.4)', duration: 0.3 });
+                gsap.to(cursorDot,  { scale: 1, duration: 0.2 });
+            });
+        });
+    }
+
+    // =========================================
+    // 3D CARD TILT — Desktop only
+    // =========================================
+    if (!isTouch) {
+        document.querySelectorAll('.pilar-card, .servico-card, .resultado-item').forEach(card => {
+            card.addEventListener('mousemove', (e) => {
+                const r = card.getBoundingClientRect();
+                const x = (e.clientX - r.left) / r.width  - 0.5;
+                const y = (e.clientY - r.top)  / r.height - 0.5;
+                gsap.to(card, {
+                    rotationY:  x * 10,
+                    rotationX: -y * 10,
+                    transformPerspective: 800,
+                    ease: 'power2.out',
+                    duration: 0.4,
+                });
+            });
+            card.addEventListener('mouseleave', () => {
+                gsap.to(card, { rotationX: 0, rotationY: 0, duration: 0.6, ease: 'elastic.out(1, 0.5)' });
+            });
+        });
+    }
+
+    // =========================================
+    // GLITCH PULSE — Hero title
+    // =========================================
+    const heroTitle = document.querySelector('.hero__title');
+    if (heroTitle) {
+        setInterval(() => {
+            if (Math.random() > 0.85) {
+                heroTitle.classList.add('glitch');
+                setTimeout(() => heroTitle.classList.remove('glitch'), 200);
+            }
+        }, 2500);
+    }
+
+    // =========================================
+    // TECH COUNTERS — Scan line on enter
+    // =========================================
+    document.querySelectorAll('.resultado-item').forEach(item => {
+        ScrollTrigger.create({
+            trigger: item,
+            start: 'top 85%',
+            onEnter: () => item.classList.add('scan'),
+            once: true,
         });
     });
 

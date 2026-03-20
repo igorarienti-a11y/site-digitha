@@ -28,7 +28,7 @@
                 <a href="#pilares" class="nav-link">Pilares</a>
                 <a href="#servicos" class="nav-link">Serviços</a>
                 <a href="#resultados" class="nav-link">Resultados</a>
-                <a href="#sobre" class="nav-link">Sobre</a>
+                <a href="#quem-somos" class="nav-link">Sobre</a>
                 <a href="#contato" class="nav-link nav-link--cta">Fale Conosco</a>
             </nav>
             <button class="header__hamburger" id="hamburger" aria-label="Menu">
@@ -43,11 +43,7 @@
         <div class="hero__bg-image"></div>
         <div class="hero__overlay"></div>
         <div class="container hero__content">
-            <div class="hero__badge" data-gsap="hero">
-                <span class="badge-dot"></span>
-                Digital Hub — Marketing Inteligente
-            </div>
-            <h1 class="hero__title" data-gsap="hero">
+            <h1 class="hero__title" data-gsap="hero" data-text="Abra caminhos para explorar todo o potencial do seu negócio.">
                 Abra caminhos para explorar <span class="text-gradient">todo o potencial</span> do seu negócio.
             </h1>
             <p class="hero__subtitle" data-gsap="hero">
@@ -87,11 +83,22 @@
     </section>
 
     <!-- PILARES -->
-    <section class="pilares" id="pilares">
+    <section class="pilares section-light" id="pilares">
         <div class="container">
             <div class="section-header">
                 <span class="section-tag" data-gsap="fade-up">Nossos Pilares</span>
-                <h2 class="section-title" data-gsap="split-text">Conhecimento que analisa.<br>Tecnologia que entrega.<br><span class="text-gradient">Estratégia que escala.</span></h2>
+                <h2 class="section-title" data-gsap="fade-up">Estratégia que
+                    <span class="word-carousel">
+                        <span class="word-carousel__track">
+                            <span class="text-gradient">analisa.</span>
+                            <span class="text-gradient">entrega.</span>
+                            <span class="text-gradient">escala.</span>
+                            <span class="text-gradient">engaja.</span>
+                            <span class="text-gradient">vende.</span>
+                            <span class="text-gradient">analisa.</span>
+                        </span>
+                    </span>
+                </h2>
             </div>
             <div class="pilares__grid">
                 <div class="pilar-card" data-gsap="stagger-card">
@@ -168,76 +175,129 @@
         <div class="container">
             <div class="section-header">
                 <span class="section-tag" data-gsap="fade-up">O que fazemos</span>
-                <h2 class="section-title" data-gsap="fade-up">Soluções que <span class="text-gradient">impulsionam</span> seu crescimento</h2>
+                <h2 class="section-title" data-gsap="letter-bounce">Soluções que <span class="text-gradient">impulsionam</span> seu crescimento</h2>
                 <p class="section-subtitle" data-gsap="fade-up">Um ecossistema integrado de serviços para PMEs que buscam resultados reais e autonomia estratégica.</p>
             </div>
-            <div class="servicos__grid">
-                <div class="servico-card" data-gsap="stagger-card">
-                    <div class="servico-card__header">
-                        <div class="servico-card__icon-wrap">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
-                        </div>
-                        <span class="servico-card__tag">Core</span>
-                    </div>
-                    <h3 class="servico-card__title">Gestão de Tráfego Pago</h3>
-                    <p class="servico-card__text">Google Ads, Meta Ads e LinkedIn Ads com foco em ROI mensurável. Estratégia de lances inteligentes, segmentação avançada e otimização contínua.</p>
-                    <ul class="servico-card__list">
+        </div>
+    </section>
+
+    <!-- ECOSSISTEMA / RODA DE SERVIÇOS -->
+    <section class="wheel-section" id="sobre">
+        <div class="wheel-section__inner">
+            <!-- LADO ESQUERDO — Info do Serviço Ativo -->
+            <div class="wheel-info" id="wheel-info">
+
+                <div class="wheel-info__counter">
+                    <span class="wheel-info__current" id="wheel-counter">01</span>
+                    <span class="wheel-info__sep">/</span>
+                    <span class="wheel-info__total">06</span>
+                </div>
+
+                <!-- Panel 0: Tráfego -->
+                <div class="wheel-info__panel active" data-panel="0">
+                    <h2 class="wheel-info__title">Gestão de Tráfego Pago</h2>
+                    <p class="wheel-info__desc">Google Ads, Meta Ads e LinkedIn Ads com foco em ROI mensurável. Estratégia de lances inteligentes, segmentação avançada e otimização contínua baseada em dados.</p>
+                    <ul class="wheel-info__features">
                         <li>ROAS otimizado e previsível</li>
                         <li>Testes A/B contínuos</li>
-                        <li>Integração com CRM</li>
+                        <li>Segmentação avançada</li>
+                        <li>Remarketing inteligente</li>
                     </ul>
                 </div>
-                <div class="servico-card" data-gsap="stagger-card">
-                    <div class="servico-card__header">
-                        <div class="servico-card__icon-wrap">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2a10 10 0 110 20 10 10 0 010-20z"/><path d="M12 6v6l4 2"/><path d="M16 2s2 2 2 4-2 4-2 4"/><path d="M8 2s-2 2-2 4 2 4 2 4"/></svg>
-                        </div>
-                        <span class="servico-card__tag">Inovação</span>
-                    </div>
-                    <h3 class="servico-card__title">IA & Automação</h3>
-                    <p class="servico-card__text">Chatbots inteligentes, agentes de IA para pré-vendas e automação de campanhas. Amplifique seus resultados com tecnologia que aprende e otimiza.</p>
-                    <ul class="servico-card__list">
+                <!-- Panel 1: Branding -->
+                <div class="wheel-info__panel" data-panel="1">
+                    <h2 class="wheel-info__title">Branding & Design</h2>
+                    <p class="wheel-info__desc">Identidade visual que posiciona e diferencia. Logo, materiais impressos, landing pages e todo o ecossistema visual da sua marca com coerência e impacto.</p>
+                    <ul class="wheel-info__features">
+                        <li>Identidade visual completa</li>
+                        <li>Landing pages de alta conversão</li>
+                        <li>UI/UX Design</li>
+                        <li>Material impresso e digital</li>
+                    </ul>
+                </div>
+                <!-- Panel 2: Content -->
+                <div class="wheel-info__panel" data-panel="2">
+                    <h2 class="wheel-info__title">Conteúdo Estratégico</h2>
+                    <p class="wheel-info__desc">Criação de conteúdo que engaja e converte. Social media, vídeos, stories e materiais editoriais 100% alinhados com suas campanhas de performance.</p>
+                    <ul class="wheel-info__features">
+                        <li>Social media management</li>
+                        <li>Produção de vídeo</li>
+                        <li>Copywriting estratégico</li>
+                        <li>Programa de creators internos</li>
+                    </ul>
+                </div>
+                <!-- Panel 3: CRM -->
+                <div class="wheel-info__panel" data-panel="3">
+                    <h2 class="wheel-info__title">CRM & Vendas</h2>
+                    <p class="wheel-info__desc">Gestão completa do relacionamento com seus clientes. Pipeline de vendas otimizado, automação de follow-ups e visão 360° de cada lead — tudo integrado com suas campanhas.</p>
+                    <ul class="wheel-info__features">
+                        <li>Pipeline inteligente</li>
+                        <li>Automação de follow-up</li>
+                        <li>Score de leads com IA</li>
+                        <li>Integração com ads</li>
+                    </ul>
+                </div>
+                <!-- Panel 4: IA -->
+                <div class="wheel-info__panel" data-panel="4">
+                    <h2 class="wheel-info__title">IA & Automação</h2>
+                    <p class="wheel-info__desc">Chatbots inteligentes, agentes de IA para pré-vendas e automação de campanhas. Tecnologia que aprende, otimiza e amplia a capacidade do seu time.</p>
+                    <ul class="wheel-info__features">
                         <li>Qualificação automática de leads</li>
                         <li>IA agêntica para social selling</li>
                         <li>Análise preditiva</li>
+                        <li>Chatbots personalizados</li>
                     </ul>
                 </div>
-                <div class="servico-card" data-gsap="stagger-card">
-                    <div class="servico-card__header">
-                        <div class="servico-card__icon-wrap">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/></svg>
+                <!-- Panel 5: Dados -->
+                <div class="wheel-info__panel" data-panel="5">
+                    <h2 class="wheel-info__title">Dados & Analytics</h2>
+                    <p class="wheel-info__desc">Dashboards em tempo real, relatórios de performance e insights acionáveis. Cada decisão guiada por dados concretos e métricas que importam.</p>
+                    <ul class="wheel-info__features">
+                        <li>Dashboards real-time</li>
+                        <li>Atribuição multi-touch</li>
+                        <li>Relatórios automáticos</li>
+                        <li>Insights potencializados por IA</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- LADO DIREITO — Roda Gigante -->
+            <div class="wheel-visual" id="wheel-visual">
+                <div class="wheel-circle" id="wheel-circle">
+                    <!-- Anéis decorativos -->
+                    <div class="wheel-ring wheel-ring--outer"></div>
+                    <div class="wheel-ring wheel-ring--inner"></div>
+                    <!-- Rotator (vai girar) -->
+                    <div class="wheel-rotator" id="wheel-rotator">
+                        <!-- Centro -->
+                        <div class="wheel-center">
+                            <img src="assets/icon.png" alt="Dígitha" class="wheel-center__img">
                         </div>
-                        <span class="servico-card__tag">Performance</span>
+                        <!-- Nodes posicionados via JS -->
+                        <div class="wheel-node active" data-node="0"><span>Tráfego</span></div>
+                        <div class="wheel-node" data-node="1"><span>Branding</span></div>
+                        <div class="wheel-node" data-node="2"><span>Content</span></div>
+                        <div class="wheel-node" data-node="3"><span>CRM</span></div>
+                        <div class="wheel-node" data-node="4"><span>IA</span></div>
+                        <div class="wheel-node" data-node="5"><span>Dados</span></div>
                     </div>
-                    <h3 class="servico-card__title">Redes Sociais</h3>
-                    <p class="servico-card__text">Gestão estratégica de Facebook, Instagram, LinkedIn e TikTok. Conteúdo que gera engajamento e reforça as mensagens das suas campanhas.</p>
-                    <ul class="servico-card__list">
-                        <li>Social selling via WhatsApp</li>
-                        <li>Programa de creators internos</li>
-                        <li>Conteúdo estratégico</li>
-                    </ul>
                 </div>
-                <div class="servico-card" data-gsap="stagger-card">
-                    <div class="servico-card__header">
-                        <div class="servico-card__icon-wrap">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
-                        </div>
-                        <span class="servico-card__tag">Ecossistema</span>
-                    </div>
-                    <h3 class="servico-card__title">Ecossistema Integrado</h3>
-                    <p class="servico-card__text">CRM, branding, produção de conteúdo, landing pages e consultoria em RevOps. Todas as frentes trabalhando em sinergia para o seu crescimento.</p>
-                    <ul class="servico-card__list">
-                        <li>Soluções end-to-end</li>
-                        <li>Dados compartilhados</li>
-                        <li>Redução de custos</li>
-                    </ul>
-                </div>
+            </div>
+
+            <!-- Progress dots -->
+            <div class="wheel-dots" id="wheel-dots">
+                <button class="wheel-dot active" data-dot="0" aria-label="Tráfego"></button>
+                <button class="wheel-dot" data-dot="1" aria-label="Branding"></button>
+                <button class="wheel-dot" data-dot="2" aria-label="Content"></button>
+                <button class="wheel-dot" data-dot="3" aria-label="CRM"></button>
+                <button class="wheel-dot" data-dot="4" aria-label="IA"></button>
+                <button class="wheel-dot" data-dot="5" aria-label="Dados"></button>
             </div>
         </div>
     </section>
 
     <!-- RESULTADOS -->
-    <section class="resultados" id="resultados">
+    <section class="resultados section-light" id="resultados">
         <div class="container">
             <div class="section-header">
                 <span class="section-tag" data-gsap="fade-up">Resultados</span>
@@ -268,146 +328,135 @@
         </div>
     </section>
 
-    <!-- ECOSSISTEMA / RODA DE SERVIÇOS -->
-    <section class="wheel-section" id="sobre">
-        <div class="wheel-section__inner">
-            <!-- LADO ESQUERDO — Info do Serviço Ativo -->
-            <div class="wheel-info" id="wheel-info">
-                <span class="section-tag">Nosso Ecossistema</span>
-                <div class="wheel-info__counter">
-                    <span class="wheel-info__current" id="wheel-counter">01</span>
-                    <span class="wheel-info__sep">/</span>
-                    <span class="wheel-info__total">06</span>
-                </div>
-
-                <!-- Panel 0: CRM -->
-                <div class="wheel-info__panel active" data-panel="0">
-                    <h2 class="wheel-info__title">CRM & Vendas</h2>
-                    <p class="wheel-info__desc">Gestão completa do relacionamento com seus clientes. Pipeline de vendas otimizado, automação de follow-ups e visão 360° de cada lead — tudo integrado com suas campanhas.</p>
-                    <ul class="wheel-info__features">
-                        <li>Pipeline inteligente</li>
-                        <li>Automação de follow-up</li>
-                        <li>Score de leads com IA</li>
-                        <li>Integração com ads</li>
-                    </ul>
-                </div>
-                <!-- Panel 1: Tráfego -->
-                <div class="wheel-info__panel" data-panel="1">
-                    <h2 class="wheel-info__title">Gestão de Tráfego Pago</h2>
-                    <p class="wheel-info__desc">Google Ads, Meta Ads e LinkedIn Ads com foco em ROI mensurável. Estratégia de lances inteligentes, segmentação avançada e otimização contínua baseada em dados.</p>
-                    <ul class="wheel-info__features">
-                        <li>ROAS otimizado e previsível</li>
-                        <li>Testes A/B contínuos</li>
-                        <li>Segmentação avançada</li>
-                        <li>Remarketing inteligente</li>
-                    </ul>
-                </div>
-                <!-- Panel 2: IA -->
-                <div class="wheel-info__panel" data-panel="2">
-                    <h2 class="wheel-info__title">IA & Automação</h2>
-                    <p class="wheel-info__desc">Chatbots inteligentes, agentes de IA para pré-vendas e automação de campanhas. Tecnologia que aprende, otimiza e amplia a capacidade do seu time.</p>
-                    <ul class="wheel-info__features">
-                        <li>Qualificação automática de leads</li>
-                        <li>IA agêntica para social selling</li>
-                        <li>Análise preditiva</li>
-                        <li>Chatbots personalizados</li>
-                    </ul>
-                </div>
-                <!-- Panel 3: Content -->
-                <div class="wheel-info__panel" data-panel="3">
-                    <h2 class="wheel-info__title">Conteúdo Estratégico</h2>
-                    <p class="wheel-info__desc">Criação de conteúdo que engaja e converte. Social media, vídeos, stories e materiais editoriais 100% alinhados com suas campanhas de performance.</p>
-                    <ul class="wheel-info__features">
-                        <li>Social media management</li>
-                        <li>Produção de vídeo</li>
-                        <li>Copywriting estratégico</li>
-                        <li>Programa de creators internos</li>
-                    </ul>
-                </div>
-                <!-- Panel 4: Dados -->
-                <div class="wheel-info__panel" data-panel="4">
-                    <h2 class="wheel-info__title">Dados & Analytics</h2>
-                    <p class="wheel-info__desc">Dashboards em tempo real, relatórios de performance e insights acionáveis. Cada decisão guiada por dados concretos e métricas que importam.</p>
-                    <ul class="wheel-info__features">
-                        <li>Dashboards real-time</li>
-                        <li>Atribuição multi-touch</li>
-                        <li>Relatórios automáticos</li>
-                        <li>Insights potencializados por IA</li>
-                    </ul>
-                </div>
-                <!-- Panel 5: Branding -->
-                <div class="wheel-info__panel" data-panel="5">
-                    <h2 class="wheel-info__title">Branding & Design</h2>
-                    <p class="wheel-info__desc">Identidade visual que posiciona e diferencia. Logo, materiais impressos, landing pages e todo o ecossistema visual da sua marca com coerência e impacto.</p>
-                    <ul class="wheel-info__features">
-                        <li>Identidade visual completa</li>
-                        <li>Landing pages de alta conversão</li>
-                        <li>UI/UX Design</li>
-                        <li>Material impresso e digital</li>
-                    </ul>
-                </div>
-            </div>
-
-            <!-- LADO DIREITO — Roda Gigante -->
-            <div class="wheel-visual" id="wheel-visual">
-                <div class="wheel-circle" id="wheel-circle">
-                    <!-- Anéis decorativos -->
-                    <div class="wheel-ring wheel-ring--outer"></div>
-                    <div class="wheel-ring wheel-ring--inner"></div>
-                    <!-- Rotator (vai girar) -->
-                    <div class="wheel-rotator" id="wheel-rotator">
-                        <!-- Centro -->
-                        <div class="wheel-center">
-                            <img src="assets/icon.png" alt="Dígitha" class="wheel-center__img">
-                        </div>
-                        <!-- Nodes posicionados via JS -->
-                        <div class="wheel-node active" data-node="0"><span>CRM</span></div>
-                        <div class="wheel-node" data-node="1"><span>Tráfego</span></div>
-                        <div class="wheel-node" data-node="2"><span>IA</span></div>
-                        <div class="wheel-node" data-node="3"><span>Content</span></div>
-                        <div class="wheel-node" data-node="4"><span>Dados</span></div>
-                        <div class="wheel-node" data-node="5"><span>Branding</span></div>
-                        <!-- Connection lines -->
-                        <svg class="wheel-connections" viewBox="0 0 700 700" fill="none">
-                            <line class="wheel-line" data-line="0" stroke="rgba(0,229,255,0.15)" stroke-width="1"/>
-                            <line class="wheel-line" data-line="1" stroke="rgba(0,229,255,0.15)" stroke-width="1"/>
-                            <line class="wheel-line" data-line="2" stroke="rgba(0,229,255,0.15)" stroke-width="1"/>
-                            <line class="wheel-line" data-line="3" stroke="rgba(0,229,255,0.15)" stroke-width="1"/>
-                            <line class="wheel-line" data-line="4" stroke="rgba(0,229,255,0.15)" stroke-width="1"/>
-                            <line class="wheel-line" data-line="5" stroke="rgba(0,229,255,0.15)" stroke-width="1"/>
-                        </svg>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Progress dots -->
-            <div class="wheel-dots" id="wheel-dots">
-                <button class="wheel-dot active" data-dot="0" aria-label="CRM"></button>
-                <button class="wheel-dot" data-dot="1" aria-label="Tráfego"></button>
-                <button class="wheel-dot" data-dot="2" aria-label="IA"></button>
-                <button class="wheel-dot" data-dot="3" aria-label="Content"></button>
-                <button class="wheel-dot" data-dot="4" aria-label="Dados"></button>
-                <button class="wheel-dot" data-dot="5" aria-label="Branding"></button>
-            </div>
-        </div>
-    </section>
-
     <!-- CLIENTES -->
-    <section class="clientes" id="clientes">
+    <section class="clientes section-light" id="clientes">
         <div class="container">
             <div class="section-header">
                 <span class="section-tag" data-gsap="fade-up">Clientes</span>
                 <h2 class="section-title" data-gsap="fade-up">Empresas que <span class="text-gradient">confiam</span> na Dígitha</h2>
             </div>
-            <div class="clientes__grid">
-                <div class="cliente-logo" data-gsap="stagger-card">Corius</div>
-                <div class="cliente-logo" data-gsap="stagger-card">Tornadolog</div>
-                <div class="cliente-logo" data-gsap="stagger-card">The Wine Pub</div>
-                <div class="cliente-logo" data-gsap="stagger-card">Rainha do Porcelanato</div>
-                <div class="cliente-logo" data-gsap="stagger-card">Life Unic</div>
-                <div class="cliente-logo" data-gsap="stagger-card">Link-se</div>
-                <div class="cliente-logo" data-gsap="stagger-card">Comténica</div>
-                <div class="cliente-logo" data-gsap="stagger-card">Asitech</div>
+            <div class="clientes__grid clientes__grid--logos">
+                <div class="cliente-logo" data-gsap="stagger-card">
+                    <img src="assets/cliente-lideranca.png" alt="Liderança">
+                </div>
+                <div class="cliente-logo" data-gsap="stagger-card">
+                    <img src="assets/cliente-neolevel.png" alt="Neolevel">
+                </div>
+                <div class="cliente-logo" data-gsap="stagger-card">
+                    <img src="assets/cliente-profissao-construir.png" alt="Profissão Construir">
+                </div>
+                <div class="cliente-logo" data-gsap="stagger-card">
+                    <img src="assets/cliente-tornadolog.png" alt="Tornadolog">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SOBRE A EMPRESA -->
+    <section class="sobre-empresa" id="quem-somos">
+        <div class="container">
+            <div class="section-header sobre-empresa__header">
+                <span class="section-tag" data-gsap="fade-up">Quem somos</span>
+                <h2 class="section-title" data-gsap="fade-up">
+                    Não somos uma agência.<br>
+                    <span class="text-gradient">Somos a extensão do seu time.</span>
+                </h2>
+            </div>
+
+            <div class="sobre-empresa__body">
+
+                <!-- COLUNA ESQUERDA — sticky -->
+                <div class="sobre-empresa__narrative">
+                    <p class="sobre-empresa__text">A Dígitha nasceu dentro do Grupo Linkse com um propósito claro: ser o braço digital de empresas que querem crescer de verdade. Com mais de 8 anos de mercado, construímos um ecossistema próprio que une tráfego pago, branding, conteúdo, automação com IA e dados em uma única operação integrada.</p>
+                    <p class="sobre-empresa__text">Não trabalhamos com pacotes genéricos. Cada estratégia é desenhada para o momento e o mercado do cliente — com execução de alto nível e transparência total nos resultados.</p>
+
+                    <div class="sobre-stats">
+                        <div class="sobre-stat">
+                            <span class="sobre-stat__number" data-sobre-counter="8" data-prefix="+">0</span>
+                            <span class="sobre-stat__label">Anos de mercado</span>
+                        </div>
+                        <div class="sobre-stat">
+                            <span class="sobre-stat__number" data-sobre-counter="150" data-prefix="+">0</span>
+                            <span class="sobre-stat__label">Projetos entregues</span>
+                        </div>
+                        <div class="sobre-stat">
+                            <span class="sobre-stat__number" data-sobre-counter="50" data-prefix="+">0</span>
+                            <span class="sobre-stat__label">Clientes ativos</span>
+                        </div>
+                        <div class="sobre-stat">
+                            <span class="sobre-stat__number" data-sobre-counter="85" data-suffix="%">0</span>
+                            <span class="sobre-stat__label">Taxa de retenção</span>
+                        </div>
+                    </div>
+
+                    <div class="sobre-diferenciais">
+                        <div class="sobre-diferencial">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+                            <span>Estratégia orientada a dados</span>
+                        </div>
+                        <div class="sobre-diferencial">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+                            <span>Operação integrada e ágil</span>
+                        </div>
+                        <div class="sobre-diferencial">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+                            <span>IA aplicada ao marketing</span>
+                        </div>
+                        <div class="sobre-diferencial">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                            <span>Equipe dedicada ao seu negócio</span>
+                        </div>
+                    </div>
+
+                    <a href="https://wa.me/5548999127745?text=Olá!%20Quero%20saber%20mais%20sobre%20a%20Dígitha." class="btn btn--primary" target="_blank" rel="noopener">Conheça nossa história</a>
+                </div>
+
+                <!-- COLUNA DIREITA — galeria de fotos -->
+                <div class="sobre-empresa__gallery">
+
+                    <div class="sobre-foto sobre-foto--wide js-sobre-foto">
+                        <div class="sobre-foto__inner">
+                            <div class="sobre-foto__placeholder">
+                                <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1"><rect x="6" y="10" width="36" height="28" rx="3"/><circle cx="17" cy="22" r="4"/><path d="M6 34l10-10 8 8 6-6 12 8"/></svg>
+                                <span>Foto do escritório</span>
+                                <em>Substitua por: assets/foto-escritorio.jpg</em>
+                            </div>
+                        </div>
+                        <div class="sobre-foto__caption">
+                            <span class="sobre-foto__num">01</span>
+                            <span>Sede Dígitha — Grupo Linkse</span>
+                        </div>
+                    </div>
+
+                    <div class="sobre-foto sobre-foto--square js-sobre-foto">
+                        <div class="sobre-foto__inner">
+                            <div class="sobre-foto__placeholder">
+                                <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1"><path d="M8 40l10-14 8 8 14-20"/><circle cx="32" cy="16" r="4"/></svg>
+                                <span>Equipe em ação</span>
+                                <em>Substitua por: assets/foto-equipe.jpg</em>
+                            </div>
+                        </div>
+                        <div class="sobre-foto__caption">
+                            <span class="sobre-foto__num">02</span>
+                            <span>Time Dígitha — estratégia e execução</span>
+                        </div>
+                    </div>
+
+                    <div class="sobre-foto sobre-foto--wide js-sobre-foto">
+                        <div class="sobre-foto__inner">
+                            <div class="sobre-foto__placeholder">
+                                <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1"><rect x="4" y="16" width="16" height="16" rx="2"/><rect x="28" y="8" width="16" height="32" rx="2"/><path d="M20 24h8"/></svg>
+                                <span>Ambiente de trabalho</span>
+                                <em>Substitua por: assets/foto-ambiente.jpg</em>
+                            </div>
+                        </div>
+                        <div class="sobre-foto__caption">
+                            <span class="sobre-foto__num">03</span>
+                            <span>Nossa operação — dados e tecnologia</span>
+                        </div>
+                    </div>
+
+                </div>
             </div>
         </div>
     </section>
@@ -485,7 +534,7 @@
                     <a href="#pilares">Pilares</a>
                     <a href="#servicos">Serviços</a>
                     <a href="#resultados">Resultados</a>
-                    <a href="#sobre">Sobre</a>
+                    <a href="#quem-somos">Sobre</a>
                     <a href="#contato">Contato</a>
                 </div>
                 <div class="footer__contact">
@@ -509,6 +558,8 @@
     <!-- GSAP CDN -->
     <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+    <!-- Motion CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/motion@latest/dist/motion.js"></script>
     <script src="script.js"></script>
 </body>
 </html>
