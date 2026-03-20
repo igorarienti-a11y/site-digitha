@@ -9,7 +9,7 @@ gsap.registerPlugin(ScrollTrigger);
 const { animate: motionAnimate, hover, press, inView } = Motion;
 
 // Evita refreshes desnecessários quando o teclado mobile aparece/some
-ScrollTrigger.config({ ignoreMobileResize: true });
+ScrollTrigger.config({ ignoreMobileResize: true, fastScrollEnd: true });
 
 // =========================================
 // PRELOADER
@@ -269,7 +269,7 @@ function initAnimations() {
 
     // ── Switch active service ──────────────────────────────────────
     function setActiveService(index) {
-        if (index === currentActiveIndex && index !== 0) return;
+        if (index === currentActiveIndex) return;
 
         wheelPanels.forEach((p, i) => p.classList.toggle('active', i === index));
         wheelNodes.forEach((n, i)  => n.classList.toggle('active', i === index));
@@ -277,6 +277,16 @@ function initAnimations() {
 
         wheelCounter.textContent = String(index + 1).padStart(2, '0');
         currentActiveIndex = index;
+    }
+
+    // ── Reset wheel to initial state ──────────────────────────────
+    function resetWheel() {
+        gsap.set(wheelVisual, { x: ENTRANCE_X, opacity: 0 });
+        gsap.set(wheelRotator, { rotation: 0 });
+        wheelNodes.forEach(n => gsap.set(n.querySelector('span'), { rotation: 0 }));
+        gsap.set(wheelCenter, { rotation: 0 });
+        currentActiveIndex = -1;
+        setActiveService(0);
     }
 
     // ── Initial state: wheel off-screen right ──────────────────────
@@ -300,9 +310,10 @@ function initAnimations() {
         end: `+=${TOTAL_SCROLL}`,
         pin: true,
         anticipatePin: 1,
-        scrub: 1,
+        scrub: isMobile ? 0.3 : 1,
         invalidateOnRefresh: true,
         onRefresh: positionNodes,
+        onLeaveBack: resetWheel,
         onUpdate: (self) => {
             const p = self.progress; // 0 → 1
 
