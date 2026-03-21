@@ -1802,3 +1802,165 @@ button, input, select, textarea {
     0%, 100% { opacity: 1; }
     50% { opacity: 0; }
 }
+
+/* =========================================
+   SERVICES MOBILE — alternating timeline cards
+   Design: Dark Agency + Aurora UI (ui-ux-pro-max)
+   ========================================= */
+.services-mobile {
+    display: none;
+    padding: 72px 0 80px;
+    background: var(--color-bg);
+    position: relative;
+}
+
+/* Timeline vertical connector */
+.services-mobile .container {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.services-mobile .container::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 0;
+    bottom: 0;
+    width: 1px;
+    background: linear-gradient(180deg,
+        transparent 0%,
+        rgba(232,82,26,0.12) 15%,
+        rgba(232,82,26,0.06) 50%,
+        rgba(232,82,26,0.12) 85%,
+        transparent 100%);
+    transform: translateX(-50%);
+    pointer-events: none;
+}
+
+/* ── Base card — sem fundo, efeito flutuante ── */
+.sm-card {
+    position: relative;
+    background: transparent;
+    border: none;
+    padding: 0;
+    opacity: 0;
+    will-change: transform, opacity;
+    touch-action: manipulation;
+}
+
+.sm-card.is-visible {
+    animation: sm-float 5s ease-in-out infinite;
+}
+.sm-card.is-visible:nth-child(even) { animation-delay: -2.5s; }
+.sm-card.is-visible:nth-child(3)    { animation-delay: -1s; }
+.sm-card.is-visible:nth-child(5)    { animation-delay: -3.5s; }
+
+@keyframes sm-float {
+    0%, 100% { transform: translateY(0px); }
+    50%       { transform: translateY(-8px); }
+}
+
+/* Entrada alternada (estado inicial para GSAP) */
+.sm-card--left  { transform: translateX(-48px); }
+.sm-card--right { transform: translateX(48px); }
+
+/* ── Inner layout ── */
+.sm-card__inner { padding: 4px 0 28px; }
+
+/* Icon wrap — círculo laranja com glow */
+.sm-card__icon-wrap {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: var(--color-accent-glow);
+    border: 1px solid rgba(232,82,26,0.25);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-accent);
+    flex-shrink: 0;
+    margin-bottom: 16px;
+    box-shadow: 0 0 24px rgba(232,82,26,0.2), 0 0 48px rgba(232,82,26,0.07);
+}
+
+.sm-card__icon-wrap svg { width: 22px; height: 22px; }
+
+.sm-card--right .sm-card__icon-wrap { margin-left: auto; }
+
+/* Título alaranjado com gradiente */
+.sm-card__title {
+    font-family: var(--font-display);
+    font-size: 1.25rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--color-accent), #FF8C00, var(--color-accent));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    background-size: 200% 200%;
+    animation: gradientShift 4s ease-in-out infinite;
+    margin-bottom: 10px;
+    line-height: 1.25;
+    filter: drop-shadow(0 0 10px rgba(232,82,26,0.25));
+}
+
+.sm-card--right .sm-card__title { text-align: right; }
+
+/* Descrição */
+.sm-card__desc {
+    font-size: 0.9rem;
+    color: var(--color-text-secondary);
+    line-height: 1.65;
+    margin-bottom: 16px;
+}
+
+.sm-card--right .sm-card__desc { text-align: right; }
+
+/* Divider oculto */
+.sm-card__divider { display: none; }
+
+/* Feature list */
+.sm-card__list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+}
+
+.sm-card__list li {
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+    padding-left: 20px;
+    position: relative;
+    line-height: 1.4;
+}
+
+.sm-card__list li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 6px;
+    width: 8px;
+    height: 8px;
+    background: var(--color-accent);
+    border-radius: 2px;
+    opacity: 0.6;
+}
+
+.sm-card--right .sm-card__list { text-align: right; }
+.sm-card--right .sm-card__list li {
+    padding-left: 0;
+    padding-right: 20px;
+}
+.sm-card--right .sm-card__list li::before {
+    left: auto;
+    right: 0;
+}
+
+@media (max-width: 768px) {
+    .wheel-section   { display: none !important; }
+    .services-mobile { display: block; }
+}

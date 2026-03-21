@@ -373,6 +373,26 @@ function initAnimations() {
     });
 
     // =========================================
+    // SERVICES MOBILE — alternating slide-in cards
+    // =========================================
+    if (isMobile) {
+        document.querySelectorAll('.sm-card').forEach(card => {
+            gsap.to(card, {
+                x: 0,
+                opacity: 1,
+                duration: 0.8,
+                ease: 'power2.out',
+                scrollTrigger: {
+                    trigger: card,
+                    start: 'top 88%',
+                    toggleActions: 'play none none none',
+                    onEnter: () => card.classList.add('is-visible'),
+                },
+            });
+        });
+    }
+
+    // =========================================
     // MARQUEE — Infinite horizontal scroll
     // =========================================
     const marqueeTrack = document.querySelector('.marquee-track');
