@@ -1108,6 +1108,7 @@ button, input, select, textarea {
     width: 700px;
     height: 700px;
     z-index: 2;
+    will-change: transform, opacity;
 }
 
 .wheel-circle {

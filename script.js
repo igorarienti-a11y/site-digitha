@@ -301,14 +301,22 @@ function initAnimations() {
     gsap.set(wheelVisual, { x: ENTRANCE_X, opacity: 0 });
     setActiveService(0);
 
-    // ── Scroll budget (reduzido no mobile para evitar travamento) ──
-    const ENTRANCE_PX   = isMobile ? 300 : 500;
-    const STEP_PX       = isMobile ? 450 : 700;
+    // ── Scroll budget ──────────────────────────────────────────────
+    const ENTRANCE_PX   = isMobile ? 250 : 500;
+    const STEP_PX       = isMobile ? 380 : 700;
     const ROTATION_PX   = STEP_PX * (TOTAL_SERVICES - 1);
     const TOTAL_SCROLL  = ENTRANCE_PX + ROTATION_PX;
 
     const ENTRANCE_FRAC = ENTRANCE_PX / TOTAL_SCROLL;
     const ROTATE_FRAC   = 1 - ENTRANCE_FRAC;
+
+    // Force GPU layer on wheel elements for smooth mobile rendering
+    gsap.set([wheelVisual, wheelRotator, wheelCenter], { force3D: true });
+    wheelNodes.forEach(n => gsap.set(n.querySelector('span'), { force3D: true }));
+
+    // Throttle updates on mobile to avoid overwhelming the thread
+    let lastActiveIndex = -1;
+    let rafId = null;
 
     ScrollTrigger.create({
         trigger: wheelSection,
@@ -316,47 +324,51 @@ function initAnimations() {
         end: `+=${TOTAL_SCROLL}`,
         pin: true,
         anticipatePin: 1,
-        scrub: isMobile ? 0.3 : 1,
+        scrub: isMobile ? 1.2 : 1,
         invalidateOnRefresh: true,
         onRefresh: positionNodes,
         onLeaveBack: resetWheel,
         onUpdate: (self) => {
-            const p = self.progress; // 0 → 1
+            if (rafId) return; // skip if a frame is already queued
+            rafId = requestAnimationFrame(() => {
+                rafId = null;
+                const p = self.progress; // 0 → 1
 
-            if (p <= ENTRANCE_FRAC) {
-                // ── Phase 1: wheel slides in from the right ──
-                const ep = p / ENTRANCE_FRAC;               // 0 → 1 within entrance
-                const eased = gsap.parseEase('power2.out')(ep);
+                if (p <= ENTRANCE_FRAC) {
+                    // ── Phase 1: wheel slides in from the right ──
+                    const ep = p / ENTRANCE_FRAC;
+                    const eased = gsap.parseEase('power2.out')(ep);
 
-                gsap.set(wheelVisual, {
-                    x: ENTRANCE_X * (1 - eased),
-                    opacity: Math.min(ep * 2, 1),
-                });
+                    gsap.set(wheelVisual, {
+                        x: ENTRANCE_X * (1 - eased),
+                        opacity: Math.min(ep * 2, 1),
+                        force3D: true,
+                    });
 
-                // Keep rotation at 0 and first service active
-                gsap.set(wheelRotator, { rotation: 0 });
-                wheelNodes.forEach(n => gsap.set(n.querySelector('span'), { rotation: 0 }));
-                gsap.set(wheelCenter, { rotation: 0 });
-                setActiveService(0);
+                    gsap.set(wheelRotator, { rotation: 0, force3D: true });
+                    wheelNodes.forEach(n => gsap.set(n.querySelector('span'), { rotation: 0, force3D: true }));
+                    gsap.set(wheelCenter, { rotation: 0, force3D: true });
+                    if (lastActiveIndex !== 0) { setActiveService(0); lastActiveIndex = 0; }
 
-            } else {
-                // ── Phase 2: wheel fully visible, rotate ──
-                gsap.set(wheelVisual, { x: 0, opacity: 1 });
+                } else {
+                    // ── Phase 2: wheel fully visible, rotate ──
+                    gsap.set(wheelVisual, { x: 0, opacity: 1, force3D: true });
 
-                const rp    = (p - ENTRANCE_FRAC) / ROTATE_FRAC;          // 0 → 1
-                const step  = rp * (TOTAL_SERVICES - 1);                   // 0 → 5
-                const rot   = step * -ANGLE_PER_SERVICE;                   // 0 → -300°
+                    const rp    = (p - ENTRANCE_FRAC) / ROTATE_FRAC;
+                    const step  = rp * (TOTAL_SERVICES - 1);
+                    const rot   = step * -ANGLE_PER_SERVICE;
 
-                // Rotate the wheel disc
-                gsap.set(wheelRotator, { rotation: rot });
+                    gsap.set(wheelRotator, { rotation: rot, force3D: true });
+                    wheelNodes.forEach(n => gsap.set(n.querySelector('span'), { rotation: -rot, force3D: true }));
+                    gsap.set(wheelCenter, { rotation: -rot, force3D: true });
 
-                // Counter-rotate each node label and the center logo so they stay upright
-                wheelNodes.forEach(n => gsap.set(n.querySelector('span'), { rotation: -rot }));
-                gsap.set(wheelCenter, { rotation: -rot });
-
-                const activeIndex = Math.min(Math.round(step), TOTAL_SERVICES - 1);
-                setActiveService(activeIndex);
-            }
+                    const activeIndex = Math.min(Math.round(step), TOTAL_SERVICES - 1);
+                    if (lastActiveIndex !== activeIndex) {
+                        setActiveService(activeIndex);
+                        lastActiveIndex = activeIndex;
+                    }
+                }
+            });
         }
     });
 
