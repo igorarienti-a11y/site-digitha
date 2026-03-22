@@ -598,22 +598,40 @@ function initAnimations() {
         submitBtn.disabled = true;
         submitBtn.innerHTML = 'Enviando...';
 
+        let success = false;
         try {
-            await fetch(SHEET_URL, {
+            const res = await fetch(SHEET_URL, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ name, email, phone, nicho, marketing, message, utms }),
             });
-        } catch (_) { /* no-cors não retorna response legível — silencia */ }
+            success = res.ok;
+            if (!res.ok) {
+                const err = await res.json().catch(() => ({}));
+                console.error('[Digitha] Erro ao enviar lead:', res.status, err);
+            }
+        } catch (err) {
+            console.error('[Digitha] Erro de rede:', err);
+        }
 
-        submitBtn.innerHTML = '✓ Recebido! Em breve entraremos em contato.';
-        submitBtn.style.background = '#25d366';
-        setTimeout(() => {
-            submitBtn.innerHTML = original;
-            submitBtn.style.background = '';
-            submitBtn.disabled = false;
-            form.reset();
-        }, 4000);
+        if (success) {
+            submitBtn.innerHTML = '✓ Recebido! Em breve entraremos em contato.';
+            submitBtn.style.background = '#25d366';
+            setTimeout(() => {
+                submitBtn.innerHTML = original;
+                submitBtn.style.background = '';
+                submitBtn.disabled = false;
+                form.reset();
+            }, 4000);
+        } else {
+            submitBtn.innerHTML = 'Erro ao enviar. Tente novamente.';
+            submitBtn.style.background = '#e53e3e';
+            setTimeout(() => {
+                submitBtn.innerHTML = original;
+                submitBtn.style.background = '';
+                submitBtn.disabled = false;
+            }, 4000);
+        }
     });
 
     // =========================================
