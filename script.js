@@ -560,28 +560,61 @@ function initAnimations() {
     });
 
     // =========================================
+    // UTM CAPTURE
+    // =========================================
+    function getUtms() {
+        const params = new URLSearchParams(window.location.search);
+        const keys   = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content'];
+        const utms   = {};
+        keys.forEach(k => { if (params.get(k)) utms[k] = params.get(k); });
+
+        // Persiste UTMs na sessão para não perder em navegação interna
+        if (Object.keys(utms).length) {
+            sessionStorage.setItem('digitha_utms', JSON.stringify(utms));
+        }
+        const stored = sessionStorage.getItem('digitha_utms');
+        return stored ? JSON.parse(stored) : {};
+    }
+
+    // =========================================
     // FORM HANDLING
     // =========================================
-    const form = document.getElementById('contact-form');
-    form.addEventListener('submit', (e) => {
-        e.preventDefault();
-        const name    = document.getElementById('form-name').value;
-        const email   = document.getElementById('form-email').value;
-        const phone   = document.getElementById('form-phone').value;
-        const revenue = document.getElementById('form-revenue').value;
+    const SHEET_URL = 'https://script.google.com/macros/s/AKfycbyK6RRiTygjiYec-DgrzHX_hqA6UHoWyRiPXt_4agl5KBQKT_XTE34yW282irXcEAffcw/exec';
 
-        const message = encodeURIComponent(
-            `Olá! Vim pelo site da Dígitha.\n\n` +
-            `📌 Nome: ${name}\n📧 Email: ${email}\n📱 Telefone: ${phone}\n💰 Faturamento: ${revenue}\n\n` +
-            `Gostaria de agendar uma análise gratuita!`
-        );
-        window.open(`https://wa.me/5548999127745?text=${message}`, '_blank');
+    const form = document.getElementById('contact-form');
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const name      = document.getElementById('form-name').value.trim();
+        const email     = document.getElementById('form-email').value.trim();
+        const phone     = document.getElementById('form-phone').value.trim();
+        const nicho     = document.getElementById('form-nicho').value.trim();
+        const marketing = document.getElementById('form-marketing').value;
+        const message   = document.getElementById('form-message').value.trim();
+        const utms      = getUtms();
 
         const submitBtn = document.getElementById('form-submit');
         const original  = submitBtn.innerHTML;
-        submitBtn.innerHTML = '✓ Enviado! Redirecionando...';
-        submitBtn.style.background = 'var(--color-whatsapp)';
-        setTimeout(() => { submitBtn.innerHTML = original; submitBtn.style.background = ''; form.reset(); }, 3000);
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = 'Enviando...';
+
+        try {
+            await fetch(SHEET_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, email, phone, nicho, marketing, message, utms }),
+            });
+        } catch (_) { /* no-cors não retorna response legível — silencia */ }
+
+        submitBtn.innerHTML = '✓ Recebido! Em breve entraremos em contato.';
+        submitBtn.style.background = '#25d366';
+        setTimeout(() => {
+            submitBtn.innerHTML = original;
+            submitBtn.style.background = '';
+            submitBtn.disabled = false;
+            form.reset();
+        }, 4000);
     });
 
     // =========================================
