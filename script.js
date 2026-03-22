@@ -579,7 +579,7 @@ function initAnimations() {
     // =========================================
     // FORM HANDLING
     // =========================================
-    const SHEET_URL = 'https://script.google.com/macros/s/AKfycbwYxd3vrGcHeVVn1Od0ovA5uky--PJ1T8KTXv-DLchQjWtrj4PeWhIPkuBWDwKmtuePDw/exec';
+    const SHEET_URL = '/api/leads';
 
     const form = document.getElementById('contact-form');
     form.addEventListener('submit', async (e) => {
@@ -601,8 +601,7 @@ function initAnimations() {
         try {
             await fetch(SHEET_URL, {
                 method: 'POST',
-                mode: 'no-cors',
-                headers: { 'Content-Type': 'text/plain' },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ name, email, phone, nicho, marketing, message, utms }),
             });
         } catch (_) { /* no-cors não retorna response legível — silencia */ }
