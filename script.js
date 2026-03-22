@@ -602,7 +602,7 @@ function initAnimations() {
             await fetch(SHEET_URL, {
                 method: 'POST',
                 mode: 'no-cors',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 'Content-Type': 'text/plain' },
                 body: JSON.stringify({ name, email, phone, nicho, marketing, message, utms }),
             });
         } catch (_) { /* no-cors não retorna response legível — silencia */ }
