@@ -1,0 +1,26 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(gh api:*)",
+      "WebFetch(domain:api.github.com)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "Bash(git clone:*)",
+      "Bash(pip install:*)",
+      "Bash(where python:*)",
+      "Bash(where python3:*)",
+      "Bash(start \"c:/Users/igori/projetos/site-digitha/index.html\")",
+      "WebSearch",
+      "WebFetch(domain:motion.dev)",
+      "WebFetch(domain:uibakery.io)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:cdn.jsdelivr.net)",
+      "Bash(claude skills:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)"
+    ],
+    "additionalDirectories": [
+      "C:\\Users\\igori\\.claude"
+    ]
+  }
+}
