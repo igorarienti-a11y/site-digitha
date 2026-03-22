@@ -579,7 +579,7 @@ function initAnimations() {
     // =========================================
     // FORM HANDLING
     // =========================================
-    const SHEET_URL = '/api/leads';
+    const SHEET_URL = 'https://n8n-j0oa.srv1476290.hstgr.cloud/webhook-test/b7a93a28-d6cb-4884-9c52-03c6b846afa9';
 
     const form = document.getElementById('contact-form');
     form.addEventListener('submit', async (e) => {
@@ -601,6 +601,7 @@ function initAnimations() {
         try {
             await fetch(SHEET_URL, {
                 method: 'POST',
+                mode: 'no-cors',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ name, email, phone, nicho, marketing, message, utms }),
             });
