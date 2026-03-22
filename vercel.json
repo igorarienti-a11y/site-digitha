@@ -1,5 +1,3 @@
 {
-  "rewrites": [
-    { "source": "/((?!api/).*)", "destination": "/$1" }
-  ]
+  "outputDirectory": "."
 }
