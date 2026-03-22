@@ -557,22 +557,23 @@
                     <form class="contact-form" id="contact-form">
 
                         <div class="form-group">
-                            <input type="text" id="form-name" placeholder="Seu nome" required>
+                            <input type="text" id="form-name" placeholder="Nome" required>
                         </div>
                         <div class="form-group">
-                            <input type="email" id="form-email" placeholder="Seu e-mail" required>
+                            <input type="email" id="form-email" placeholder="E-mail" required>
                         </div>
                         <div class="form-group">
-                            <input type="tel" id="form-phone" placeholder="Seu WhatsApp" required>
+                            <input type="tel" id="form-phone" placeholder="WhatsApp" required>
                         </div>
                         <div class="form-group">
-                            <select id="form-revenue">
-                                <option value="" disabled selected>Faturamento mensal</option>
-                                <option value="ate-50k">Até R$ 50 mil</option>
-                                <option value="50k-200k">R$ 50 mil - R$ 200 mil</option>
-                                <option value="200k-500k">R$ 200 mil - R$ 500 mil</option>
-                                <option value="500k-1m">R$ 500 mil - R$ 1 milhão</option>
-                                <option value="acima-1m">Acima de R$ 1 milhão</option>
+                            <input type="text" id="form-nicho" placeholder="Nicho / Segmento" required>
+                        </div>
+                        <div class="form-group">
+                            <select id="form-marketing">
+                                <option value="" disabled selected>Já possui marketing interno?</option>
+                                <option value="sim">Sim, tenho time interno</option>
+                                <option value="nao">Não, nenhum</option>
+                                <option value="parcial">Parcialmente (freelancer / agência)</option>
                             </select>
                         </div>
                         <button type="submit" class="btn btn--primary btn--block" id="form-submit">
