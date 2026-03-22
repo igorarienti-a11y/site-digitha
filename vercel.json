@@ -1,11 +1,5 @@
 {
-  "functions": {
-    "api/leads.js": {
-      "runtime": "edge"
-    }
-  },
-  "routes": [
-    { "src": "/api/leads", "dest": "/api/leads.js" },
-    { "src": "/(.*)", "dest": "/$1" }
+  "rewrites": [
+    { "source": "/((?!api/).*)", "destination": "/$1" }
   ]
 }
