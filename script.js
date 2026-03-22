@@ -579,7 +579,7 @@ function initAnimations() {
     // =========================================
     // FORM HANDLING
     // =========================================
-    const SHEET_URL = 'https://n8n-j0oa.srv1476290.hstgr.cloud/webhook-test/b7a93a28-d6cb-4884-9c52-03c6b846afa9';
+    const SHEET_URL = '/api/leads';
 
     const form = document.getElementById('contact-form');
     form.addEventListener('submit', async (e) => {
