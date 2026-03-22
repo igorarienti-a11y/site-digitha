@@ -1,4 +1,4 @@
-import { google } from 'googleapis';
+const { google } = require('googleapis');
 
 const SPREADSHEET_ID = '1T6tdglDqvB8kTdFqCLTw4riC-9xFqhZeEh4D0e14Bdw';
 const SHEET_NAME     = 'Leads';
@@ -18,7 +18,7 @@ function getIso() {
   }).replace(' ', 'T') + '-03:00';
 }
 
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method Not Allowed' });
   }
@@ -28,9 +28,9 @@ export default async function handler(req, res) {
     const utms = data.utms || {};
 
     const marketingMap = {
-      'sim':     'Sim, time interno',
-      'nao':     'Não possui',
-      'parcial': 'Parcial (freelancer/agência)',
+      sim:     'Sim, time interno',
+      nao:     'Não possui',
+      parcial: 'Parcial (freelancer/agência)',
     };
 
     const row = [
@@ -70,4 +70,4 @@ export default async function handler(req, res) {
     console.error(err);
     return res.status(500).json({ success: false, error: err.message });
   }
-}
+};
