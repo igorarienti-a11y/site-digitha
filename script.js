@@ -601,7 +601,6 @@ function initAnimations() {
         try {
             await fetch(SHEET_URL, {
                 method: 'POST',
-                mode: 'no-cors',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ name, email, phone, nicho, marketing, message, utms }),
             });
