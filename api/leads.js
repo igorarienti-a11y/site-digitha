@@ -107,8 +107,14 @@ export default async function handler(req) {
       utms.utm_content  || '',
     ];
 
-    const token = await getAccessToken(process.env.GOOGLE_CREDENTIALS);
-    const url   = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${SHEET_NAME}!A:M:append?valueInputOption=USER_ENTERED&insertDataOption=INSERT_ROWS`;
+    let token;
+    try {
+      token = await getAccessToken(process.env.GOOGLE_CREDENTIALS);
+    } catch (tokenErr) {
+      throw new Error(`TOKEN_FAIL: ${tokenErr.message}`);
+    }
+
+    const url = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${SHEET_NAME}!A:M:append?valueInputOption=USER_ENTERED&insertDataOption=INSERT_ROWS`;
 
     const res = await fetch(url, {
       method:  'POST',
@@ -118,7 +124,7 @@ export default async function handler(req) {
 
     if (!res.ok) {
       const err = await res.json();
-      throw new Error(JSON.stringify(err));
+      throw new Error(`SHEETS_FAIL(${res.status}): ${JSON.stringify(err)}`);
     }
 
     return new Response(JSON.stringify({ success: true }), {
