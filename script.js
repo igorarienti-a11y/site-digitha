@@ -579,7 +579,7 @@ function initAnimations() {
     // =========================================
     // FORM HANDLING
     // =========================================
-    const SHEET_URL = 'https://site-digitha.vercel.app/api/leads';
+    const SHEET_URL = '/api/leads';
 
     const form = document.getElementById('contact-form');
     form.addEventListener('submit', async (e) => {
