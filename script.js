@@ -581,6 +581,11 @@ function initAnimations() {
     // =========================================
     const SHEET_URL = '/api/leads';
 
+    const selectMarketing = document.getElementById('form-marketing');
+    selectMarketing.addEventListener('change', function() {
+        this.classList.toggle('has-value', this.value !== '');
+    });
+
     const form = document.getElementById('contact-form');
     form.addEventListener('submit', async (e) => {
         e.preventDefault();

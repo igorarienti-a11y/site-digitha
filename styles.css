@@ -1354,6 +1354,7 @@ button, input, select, textarea {
     cursor: pointer;
     color: var(--color-text-muted);
 }
+.form-group select.has-value { color: var(--color-text); }
 .form-group select option { background: var(--color-bg-card); color: var(--color-text); }
 .form-group textarea {
     resize: vertical;
