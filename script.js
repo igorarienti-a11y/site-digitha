@@ -17,6 +17,11 @@ const { animate: motionAnimate, hover, press, inView } = Motion;
 // Evita refreshes desnecessários quando o teclado mobile aparece/some
 ScrollTrigger.config({ ignoreMobileResize: true, fastScrollEnd: true });
 
+// Normaliza scroll do mouse wheel para ter a mesma suavidade que arrastar a barra
+if (window.innerWidth > 768) {
+    ScrollTrigger.normalizeScroll({ momentum: 0.1, allowNestedScroll: true });
+}
+
 // =========================================
 // PRELOADER
 // =========================================
@@ -324,7 +329,7 @@ function initAnimations() {
         end: `+=${TOTAL_SCROLL}`,
         pin: true,
         anticipatePin: 1,
-        scrub: isMobile ? 1.2 : 1,
+        scrub: isMobile ? 1.2 : 1.5,
         invalidateOnRefresh: true,
         onRefresh: positionNodes,
         onLeaveBack: resetWheel,
