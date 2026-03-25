@@ -15,11 +15,31 @@ window.addEventListener('load', () => window.scrollTo(0, 0));
 const { animate: motionAnimate, hover, press, inView } = Motion;
 
 // Evita refreshes desnecessários quando o teclado mobile aparece/some
-ScrollTrigger.config({ ignoreMobileResize: true, fastScrollEnd: true });
+ScrollTrigger.config({ ignoreMobileResize: true });
 
-// Normaliza scroll do mouse wheel para ter a mesma suavidade que arrastar a barra
+// Smooth scroll via lerp — elimina os steps discretos do mouse wheel
 if (window.innerWidth > 768) {
-    ScrollTrigger.normalizeScroll({ momentum: 0.1, allowNestedScroll: true });
+    let targetY  = window.scrollY;
+    let currentY = window.scrollY;
+
+    window.addEventListener('wheel', (e) => {
+        e.preventDefault();
+        targetY = Math.max(0, Math.min(
+            document.body.scrollHeight - window.innerHeight,
+            targetY + e.deltaY
+        ));
+    }, { passive: false });
+
+    gsap.ticker.add(() => {
+        const diff = targetY - currentY;
+        if (Math.abs(diff) > 0.1) {
+            currentY += diff * 0.06;
+            window.scrollTo(0, currentY);
+            ScrollTrigger.update();
+        }
+    });
+
+    gsap.ticker.lagSmoothing(0);
 }
 
 // =========================================
@@ -329,7 +349,7 @@ function initAnimations() {
         end: `+=${TOTAL_SCROLL}`,
         pin: true,
         anticipatePin: 1,
-        scrub: isMobile ? 1.2 : 1.5,
+        scrub: isMobile ? 1.2 : 1,
         invalidateOnRefresh: true,
         onRefresh: positionNodes,
         onLeaveBack: resetWheel,
