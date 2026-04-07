@@ -17,23 +17,36 @@ const { animate: motionAnimate, hover, press, inView } = Motion;
 // Evita refreshes desnecessários quando o teclado mobile aparece/some
 ScrollTrigger.config({ ignoreMobileResize: true });
 
-// Smooth scroll via lerp — elimina os steps discretos do mouse wheel
-if (window.innerWidth > 768) {
+// Smooth scroll via lerp — cross-browser (trata deltaMode do Firefox)
+const isTouchDevice = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
+
+if (window.innerWidth > 768 && !isTouchDevice) {
     let targetY  = window.scrollY;
     let currentY = window.scrollY;
 
+    // Normaliza deltaY para pixels independente do browser
+    function normalizeDelta(e) {
+        const LINE_HEIGHT = 40;  // px por linha (Firefox)
+        const PAGE_HEIGHT = window.innerHeight;
+        if (e.deltaMode === 1) return e.deltaY * LINE_HEIGHT;  // linhas → px
+        if (e.deltaMode === 2) return e.deltaY * PAGE_HEIGHT;  // páginas → px
+        return e.deltaY; // já em pixels (Chrome, Edge, Safari)
+    }
+
     window.addEventListener('wheel', (e) => {
         e.preventDefault();
-        targetY = Math.max(0, Math.min(
-            document.body.scrollHeight - window.innerHeight,
-            targetY + e.deltaY
-        ));
+        const delta = normalizeDelta(e);
+        const maxScroll = document.body.scrollHeight - window.innerHeight;
+        targetY = Math.max(0, Math.min(maxScroll, targetY + delta));
+        // Evita lag excessivo: limita diferença máxima entre target e current
+        const maxLag = window.innerHeight;
+        targetY = Math.max(currentY - maxLag, Math.min(currentY + maxLag, targetY));
     }, { passive: false });
 
     gsap.ticker.add(() => {
         const diff = targetY - currentY;
         if (Math.abs(diff) > 0.1) {
-            currentY += diff * 0.06;
+            currentY += diff * 0.09;
             window.scrollTo(0, currentY);
             ScrollTrigger.update();
         }

@@ -44,10 +44,11 @@
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
 html {
-    scroll-behavior: smooth;
+    scroll-behavior: auto; /* desativado — nosso lerp controla o scroll */
     font-size: 16px;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
 }
 
 body {
@@ -56,6 +57,7 @@ body {
     color: var(--color-text);
     line-height: 1.6;
     overflow-x: hidden;
+    overscroll-behavior-y: none; /* evita bounce do browser interferir com lerp */
 }
 
 a { color: inherit; text-decoration: none; }
@@ -1519,7 +1521,8 @@ button, input, select, textarea {
         height: 550px;
     }
     .wheel-node { width: 60px; height: 60px; }
-    .wheel-node span { font-size: 0.65rem; }
+    .wheel-node span svg { width: 16px; height: 16px; }
+    .wheel-node span small { font-size: 0.45rem; }
     .wheel-center { width: 70px; height: 70px; }
 }
 
@@ -1801,6 +1804,8 @@ button, input, select, textarea {
     .btn--primary, .btn--outline { width: 100%; justify-content: center; }
     .resultado-item { padding: 28px 16px; }
     .resultado-item__number { font-size: 2.5rem; }
+    .clientes__grid { grid-template-columns: repeat(2, 1fr); gap: 16px; }
+    .cliente-logo img { max-height: 36px; }
 
     .wheel-info { width: 65%; padding: 40px 0 40px 16px; }
     .wheel-visual {
@@ -1809,6 +1814,15 @@ button, input, select, textarea {
         height: 500px;
     }
     .wheel-dots { left: 16px; }
+}
+
+@media (max-width: 360px) {
+    .container { padding: 0 12px; }
+    .hero__title { font-size: 1.6rem; }
+    .section-title { font-size: 1.5rem; }
+    .clientes__grid { grid-template-columns: 1fr 1fr; gap: 12px; }
+    .hero__metrics { flex-direction: column; align-items: flex-start; gap: 12px; }
+    .hero-metric__divider { display: none; }
 }
 
 /* TYPING CURSOR */
