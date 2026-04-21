@@ -594,12 +594,10 @@ function initAnimations() {
             const target = document.querySelector(this.getAttribute('href'));
             if (target) {
                 const top = target.getBoundingClientRect().top + window.pageYOffset - header.offsetHeight - 20;
-                if (useLerpScroll) {
-                    targetY  = Math.max(0, Math.min(document.body.scrollHeight - window.innerHeight, top));
-                    currentY = window.scrollY;
-                } else {
-                    window.scrollTo({ top, behavior: 'smooth' });
-                }
+                const clamped = Math.max(0, Math.min(document.body.scrollHeight - window.innerHeight, top));
+                targetY  = clamped;
+                currentY = clamped;
+                window.scrollTo(0, clamped);
             }
         });
     });
