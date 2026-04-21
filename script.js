@@ -19,10 +19,12 @@ ScrollTrigger.config({ ignoreMobileResize: true });
 
 // Smooth scroll via lerp — cross-browser (trata deltaMode do Firefox)
 const isTouchDevice = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
+const useLerpScroll = window.innerWidth > 768 && !isTouchDevice;
 
-if (window.innerWidth > 768 && !isTouchDevice) {
-    let targetY  = window.scrollY;
-    let currentY = window.scrollY;
+let targetY  = window.scrollY;
+let currentY = window.scrollY;
+
+if (useLerpScroll) {
 
     // Normaliza deltaY para pixels independente do browser
     function normalizeDelta(e) {
@@ -592,7 +594,12 @@ function initAnimations() {
             const target = document.querySelector(this.getAttribute('href'));
             if (target) {
                 const top = target.getBoundingClientRect().top + window.pageYOffset - header.offsetHeight - 20;
-                window.scrollTo({ top, behavior: 'smooth' });
+                if (useLerpScroll) {
+                    targetY  = Math.max(0, Math.min(document.body.scrollHeight - window.innerHeight, top));
+                    currentY = window.scrollY;
+                } else {
+                    window.scrollTo({ top, behavior: 'smooth' });
+                }
             }
         });
     });
