@@ -605,18 +605,58 @@ function initAnimations() {
     // =========================================
     // UTM CAPTURE
     // =========================================
+    function getCookie(name) {
+        const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+        return match ? decodeURIComponent(match[2]) : '';
+    }
+
     function getUtms() {
         const params = new URLSearchParams(window.location.search);
         const keys   = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content'];
         const utms   = {};
         keys.forEach(k => { if (params.get(k)) utms[k] = params.get(k); });
 
-        // Persiste UTMs na sessão para não perder em navegação interna
         if (Object.keys(utms).length) {
             sessionStorage.setItem('digitha_utms', JSON.stringify(utms));
         }
         const stored = sessionStorage.getItem('digitha_utms');
         return stored ? JSON.parse(stored) : {};
+    }
+
+    function getClickIds() {
+        const params  = new URLSearchParams(window.location.search);
+        const clickKeys = ['fbclid', 'gclid', 'ttclid', 'msclkid'];
+        const ids = {};
+        clickKeys.forEach(k => { if (params.get(k)) ids[k] = params.get(k); });
+
+        if (Object.keys(ids).length) {
+            sessionStorage.setItem('digitha_clickids', JSON.stringify(ids));
+        }
+        const stored = sessionStorage.getItem('digitha_clickids');
+        return stored ? JSON.parse(stored) : {};
+    }
+
+    function getBrowserData() {
+        const clickIds = getClickIds();
+        const fbclid   = clickIds.fbclid || '';
+        let fbc        = getCookie('_fbc');
+        if (!fbc && fbclid) {
+            fbc = `fb.1.${Date.now()}.${fbclid}`;
+        }
+        return {
+            fbp:        getCookie('_fbp'),
+            fbc,
+            fbclid,
+            gclid:      clickIds.gclid   || '',
+            ttclid:     clickIds.ttclid  || '',
+            msclkid:    clickIds.msclkid || '',
+            page_url:   window.location.href,
+            referrer:   document.referrer,
+            user_agent: navigator.userAgent,
+            language:   navigator.language,
+            screen:     `${window.screen.width}x${window.screen.height}`,
+            timezone:   Intl.DateTimeFormat().resolvedOptions().timeZone,
+        };
     }
 
     // =========================================
@@ -639,7 +679,8 @@ function initAnimations() {
         const nicho     = document.getElementById('form-nicho').value.trim();
         const marketing = document.getElementById('form-marketing').value;
         const message   = document.getElementById('form-message').value.trim();
-        const utms      = getUtms();
+        const utms        = getUtms();
+        const browserData = getBrowserData();
 
         const submitBtn = document.getElementById('form-submit');
         const original  = submitBtn.innerHTML;
@@ -651,7 +692,7 @@ function initAnimations() {
             const res = await fetch(SHEET_URL, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name, email, phone, nicho, marketing, message, utms }),
+                body: JSON.stringify({ name, email, phone, nicho, marketing, message, utms, ...browserData }),
             });
             success = res.ok;
             if (!res.ok) {

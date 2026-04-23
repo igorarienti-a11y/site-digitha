@@ -91,20 +91,42 @@ export default async function handler(req) {
     const utms = d.utms || {};
     const mkt  = { sim: 'Sim, time interno', nao: 'Não possui', parcial: 'Parcial (freelancer/agência)' };
 
+    const ip = req.headers.get('x-forwarded-for')?.split(',')[0].trim()
+            || req.headers.get('x-real-ip')
+            || '';
+
     const row = [
-      getIso(),
-      d.name  || '',
-      (d.email || '').toLowerCase().trim(),
-      formatPhone(d.phone),
-      d.nicho || '',
-      mkt[d.marketing] || d.marketing || '',
-      (d.message || '').trim(),
-      '',
-      utms.utm_source   || '',
-      utms.utm_medium   || '',
-      utms.utm_campaign || '',
-      utms.utm_term     || '',
-      utms.utm_content  || '',
+      // Identificação
+      getIso(),                                      // A: Data ISO
+      d.name  || '',                                 // B: Nome
+      (d.email || '').toLowerCase().trim(),          // C: Email
+      formatPhone(d.phone),                          // D: Telefone
+      d.nicho || '',                                 // E: Nicho
+      mkt[d.marketing] || d.marketing || '',         // F: Marketing interno
+      (d.message || '').trim(),                      // G: Mensagem
+      '',                                            // H: Status (comercial)
+      // UTMs
+      utms.utm_source   || '',                       // I: utm_source
+      utms.utm_medium   || '',                       // J: utm_medium
+      utms.utm_campaign || '',                       // K: utm_campaign
+      utms.utm_term     || '',                       // L: utm_term
+      utms.utm_content  || '',                       // M: utm_content
+      // Click IDs
+      d.fbclid   || '',                              // N: fbclid
+      d.gclid    || '',                              // O: gclid
+      d.ttclid   || '',                              // P: ttclid
+      d.msclkid  || '',                              // Q: msclkid
+      // Cookies Meta
+      d.fbp || '',                                   // R: _fbp
+      d.fbc || '',                                   // S: _fbc
+      // Dados do browser
+      d.page_url   || '',                            // T: page_url
+      d.referrer   || '',                            // U: referrer
+      d.language   || '',                            // V: language
+      d.screen     || '',                            // W: screen
+      d.timezone   || '',                            // X: timezone
+      ip,                                            // Y: IP
+      d.user_agent || '',                            // Z: user_agent
     ];
 
     let token;
@@ -114,7 +136,7 @@ export default async function handler(req) {
       throw new Error(`TOKEN_FAIL: ${tokenErr.message}`);
     }
 
-    const url = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${SHEET_NAME}!A:M:append?valueInputOption=USER_ENTERED&insertDataOption=INSERT_ROWS`;
+    const url = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${SHEET_NAME}!A:Z:append?valueInputOption=USER_ENTERED&insertDataOption=INSERT_ROWS`;
 
     const res = await fetch(url, {
       method:  'POST',
