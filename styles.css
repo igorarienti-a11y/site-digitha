@@ -853,7 +853,7 @@ button, input, select, textarea {
 }
 
 /* ---------- SERVIÇOS ---------- */
-.servicos { padding: 120px 0; position: relative; }
+.servicos { padding: 120px 0 40px; position: relative; }
 .servicos__grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
