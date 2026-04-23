@@ -111,22 +111,29 @@ export default async function handler(req) {
       utms.utm_campaign || '',                       // K: utm_campaign
       utms.utm_term     || '',                       // L: utm_term
       utms.utm_content  || '',                       // M: utm_content
+      // Identificadores de conversão
+      d.event_id  || '',                             // N: event_id (dedup Meta/Google)
       // Click IDs
-      d.fbclid   || '',                              // N: fbclid
-      d.gclid    || '',                              // O: gclid
-      d.ttclid   || '',                              // P: ttclid
-      d.msclkid  || '',                              // Q: msclkid
+      d.fbclid    || '',                             // O: fbclid
+      d.gclid     || '',                             // P: gclid
+      d.gbraid    || '',                             // Q: gbraid
+      d.wbraid    || '',                             // R: wbraid
+      d.ttclid    || '',                             // S: ttclid
+      d.msclkid   || '',                             // T: msclkid
       // Cookies Meta
-      d.fbp || '',                                   // R: _fbp
-      d.fbc || '',                                   // S: _fbc
+      d.fbp || '',                                   // U: _fbp
+      d.fbc || '',                                   // V: _fbc
+      // Nome split
+      d.first_name || '',                            // W: first_name
+      d.last_name  || '',                            // X: last_name
       // Dados do browser
-      d.page_url   || '',                            // T: page_url
-      d.referrer   || '',                            // U: referrer
-      d.language   || '',                            // V: language
-      d.screen     || '',                            // W: screen
-      d.timezone   || '',                            // X: timezone
-      ip,                                            // Y: IP
-      d.user_agent || '',                            // Z: user_agent
+      d.page_url   || '',                            // Y: page_url
+      d.referrer   || '',                            // Z: referrer
+      d.language   || '',                            // AA: language
+      d.screen     || '',                            // AB: screen
+      d.timezone   || '',                            // AC: timezone
+      ip,                                            // AD: IP
+      d.user_agent || '',                            // AE: user_agent
     ];
 
     let token;
@@ -136,7 +143,7 @@ export default async function handler(req) {
       throw new Error(`TOKEN_FAIL: ${tokenErr.message}`);
     }
 
-    const url = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${SHEET_NAME}!A:Z:append?valueInputOption=USER_ENTERED&insertDataOption=INSERT_ROWS`;
+    const url = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${SHEET_NAME}!A:AE:append?valueInputOption=USER_ENTERED&insertDataOption=INSERT_ROWS`;
 
     const res = await fetch(url, {
       method:  'POST',

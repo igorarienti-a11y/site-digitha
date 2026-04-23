@@ -623,9 +623,24 @@ function initAnimations() {
         return stored ? JSON.parse(stored) : {};
     }
 
+    function generateEventId() {
+        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+            const r = Math.random() * 16 | 0;
+            return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+        });
+    }
+
+    function splitName(fullName) {
+        const parts = (fullName || '').trim().split(/\s+/);
+        return {
+            first_name: parts[0] || '',
+            last_name:  parts.slice(1).join(' ') || '',
+        };
+    }
+
     function getClickIds() {
-        const params  = new URLSearchParams(window.location.search);
-        const clickKeys = ['fbclid', 'gclid', 'ttclid', 'msclkid'];
+        const params    = new URLSearchParams(window.location.search);
+        const clickKeys = ['fbclid', 'gclid', 'ttclid', 'msclkid', 'gbraid', 'wbraid'];
         const ids = {};
         clickKeys.forEach(k => { if (params.get(k)) ids[k] = params.get(k); });
 
@@ -636,18 +651,24 @@ function initAnimations() {
         return stored ? JSON.parse(stored) : {};
     }
 
-    function getBrowserData() {
+    function getBrowserData(fullName) {
         const clickIds = getClickIds();
         const fbclid   = clickIds.fbclid || '';
         let fbc        = getCookie('_fbc');
         if (!fbc && fbclid) {
             fbc = `fb.1.${Date.now()}.${fbclid}`;
         }
+        const { first_name, last_name } = splitName(fullName);
         return {
+            event_id:   generateEventId(),
+            first_name,
+            last_name,
             fbp:        getCookie('_fbp'),
             fbc,
             fbclid,
             gclid:      clickIds.gclid   || '',
+            gbraid:     clickIds.gbraid  || '',
+            wbraid:     clickIds.wbraid  || '',
             ttclid:     clickIds.ttclid  || '',
             msclkid:    clickIds.msclkid || '',
             page_url:   window.location.href,
@@ -680,7 +701,7 @@ function initAnimations() {
         const marketing = document.getElementById('form-marketing').value;
         const message   = document.getElementById('form-message').value.trim();
         const utms        = getUtms();
-        const browserData = getBrowserData();
+        const browserData = getBrowserData(name);
 
         const submitBtn = document.getElementById('form-submit');
         const original  = submitBtn.innerHTML;
