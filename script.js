@@ -697,6 +697,7 @@ function initAnimations() {
         const name      = document.getElementById('form-name').value.trim();
         const email     = document.getElementById('form-email').value.trim();
         const phone     = document.getElementById('form-phone').value.trim();
+        const empresa   = document.getElementById('form-empresa').value.trim();
         const nicho     = document.getElementById('form-nicho').value.trim();
         const marketing = document.getElementById('form-marketing').value;
         const message   = document.getElementById('form-message').value.trim();
@@ -713,7 +714,7 @@ function initAnimations() {
             const res = await fetch(SHEET_URL, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name, email, phone, nicho, marketing, message, utms, ...browserData }),
+                body: JSON.stringify({ name, email, phone, empresa, nicho, marketing, message, utms, ...browserData }),
             });
             success = res.ok;
             if (!res.ok) {
