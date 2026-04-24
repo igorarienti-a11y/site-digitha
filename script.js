@@ -729,11 +729,9 @@ function initAnimations() {
             submitBtn.innerHTML = '✓ Recebido! Em breve entraremos em contato.';
             submitBtn.style.background = '#25d366';
             setTimeout(() => {
-                submitBtn.innerHTML = original;
-                submitBtn.style.background = '';
-                submitBtn.disabled = false;
-                form.reset();
-            }, 4000);
+                const destination = marketing === 'nao' ? '/tkyp-sem-mkt' : '/tkyp';
+                window.location.href = destination;
+            }, 1500);
         } else {
             submitBtn.innerHTML = 'Erro ao enviar. Tente novamente.';
             submitBtn.style.background = '#e53e3e';
