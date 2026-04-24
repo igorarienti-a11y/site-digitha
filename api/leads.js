@@ -95,46 +95,41 @@ export default async function handler(req) {
             || req.headers.get('x-real-ip')
             || '';
 
-    const row = [
-      // Identificação
-      getIso(),                                      // A: Data ISO
-      d.name  || '',                                 // B: Nome
-      (d.email || '').toLowerCase().trim(),          // C: Email
-      formatPhone(d.phone),                          // D: Telefone
-      d.nicho || '',                                 // E: Nicho
-      mkt[d.marketing] || d.marketing || '',         // F: Marketing interno
-      (d.message || '').trim(),                      // G: Mensagem
-      '',                                            // H: Status (comercial)
-      // UTMs
-      utms.utm_source   || '',                       // I: utm_source
-      utms.utm_medium   || '',                       // J: utm_medium
-      utms.utm_campaign || '',                       // K: utm_campaign
-      utms.utm_term     || '',                       // L: utm_term
-      utms.utm_content  || '',                       // M: utm_content
-      // Identificadores de conversão
-      d.event_id  || '',                             // N: event_id (dedup Meta/Google)
-      // Click IDs
-      d.fbclid    || '',                             // O: fbclid
-      d.gclid     || '',                             // P: gclid
-      d.gbraid    || '',                             // Q: gbraid
-      d.wbraid    || '',                             // R: wbraid
-      d.ttclid    || '',                             // S: ttclid
-      d.msclkid   || '',                             // T: msclkid
-      // Cookies Meta
-      d.fbp || '',                                   // U: _fbp
-      d.fbc || '',                                   // V: _fbc
-      // Nome split
-      d.first_name || '',                            // W: first_name
-      d.last_name  || '',                            // X: last_name
-      // Dados do browser
-      d.page_url   || '',                            // Y: page_url
-      d.referrer   || '',                            // Z: referrer
-      d.language   || '',                            // AA: language
-      d.screen     || '',                            // AB: screen
-      d.timezone   || '',                            // AC: timezone
-      ip,                                            // AD: IP
-      d.user_agent || '',                            // AE: user_agent
-    ];
+    // Mapa: cabeçalho (lowercase, trimmed) → valor
+    const fieldMap = {
+      'data':               getIso(),
+      'nome':               d.name  || '',
+      'email':              (d.email || '').toLowerCase().trim(),
+      'telefone':           formatPhone(d.phone),
+      'empresa':            d.empresa || '',
+      'nicho':              d.nicho || '',
+      'marketing interno':  mkt[d.marketing] || d.marketing || '',
+      'mensagem':           (d.message || '').trim(),
+      'status':             '',
+      'utm_source':         utms.utm_source   || '',
+      'utm_medium':         utms.utm_medium   || '',
+      'utm_campaign':       utms.utm_campaign || '',
+      'utm_term':           utms.utm_term     || '',
+      'utm_content':        utms.utm_content  || '',
+      'event_id':           d.event_id  || '',
+      'fbclid':             d.fbclid    || '',
+      'gclid':              d.gclid     || '',
+      'gbraid':             d.gbraid    || '',
+      'wbraid':             d.wbraid    || '',
+      'ttclid':             d.ttclid    || '',
+      'msclkid':            d.msclkid   || '',
+      '_fbp':               d.fbp || '',
+      '_fbc':               d.fbc || '',
+      'first_name':         d.first_name || '',
+      'last_name':          d.last_name  || '',
+      'page_url':           d.page_url   || '',
+      'referrer':           d.referrer   || '',
+      'language':           d.language   || '',
+      'screen':             d.screen     || '',
+      'timezone':           d.timezone   || '',
+      'ip':                 ip,
+      'user_agent':         d.user_agent || '',
+    };
 
     let token;
     try {
@@ -143,9 +138,22 @@ export default async function handler(req) {
       throw new Error(`TOKEN_FAIL: ${tokenErr.message}`);
     }
 
-    const url = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${SHEET_NAME}!A:AE:append?valueInputOption=USER_ENTERED&insertDataOption=INSERT_ROWS`;
+    // Lê a linha 1 (cabeçalhos)
+    const headersUrl = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${SHEET_NAME}!1:1`;
+    const headersRes = await fetch(headersUrl, {
+      headers: { 'Authorization': `Bearer ${token}` },
+    });
+    if (!headersRes.ok) throw new Error(`HEADERS_FAIL(${headersRes.status})`);
 
-    const res = await fetch(url, {
+    const headersData = await headersRes.json();
+    const headers = (headersData.values?.[0] || []).map(h => h.toLowerCase().trim());
+
+    // Monta a linha na ordem dos cabeçalhos da planilha
+    const row = headers.map(h => fieldMap[h] ?? '');
+
+    // Grava
+    const appendUrl = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${SHEET_NAME}!A:A:append?valueInputOption=USER_ENTERED&insertDataOption=INSERT_ROWS`;
+    const res = await fetch(appendUrl, {
       method:  'POST',
       headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
       body:    JSON.stringify({ values: [row] }),
