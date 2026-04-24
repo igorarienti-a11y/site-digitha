@@ -1694,7 +1694,7 @@ button, input, select, textarea {
     background: var(--color-accent);
     border-radius: 50%;
     pointer-events: none;
-    z-index: 99999;
+    z-index: 2147483647;
     mix-blend-mode: difference;
     will-change: transform;
 }
@@ -1705,7 +1705,7 @@ button, input, select, textarea {
     border: 1.5px solid rgba(232,82,26,0.4);
     border-radius: 50%;
     pointer-events: none;
-    z-index: 99998;
+    z-index: 2147483646;
     will-change: transform;
 }
 
