@@ -1,0 +1,6 @@
+{
+  "rewrites": [
+    { "source": "/tkyp", "destination": "/tkyp.html" },
+    { "source": "/tkyp-sem-mkt", "destination": "/tkyp-sem-mkt.html" }
+  ]
+}
