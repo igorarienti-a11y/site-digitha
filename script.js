@@ -717,6 +717,9 @@ function initAnimations() {
                 body: JSON.stringify({ name, email, phone, empresa, nicho, marketing, message, utms, ...browserData }),
             });
             success = res.ok;
+            if (res.ok && typeof fbq === 'function') {
+                fbq('track', 'Lead', {}, { eventID: browserData.event_id });
+            }
             if (!res.ok) {
                 const err = await res.json().catch(() => ({}));
                 console.error('[Digitha] Erro ao enviar lead:', res.status, err);
