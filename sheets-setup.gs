@@ -24,7 +24,7 @@ function onChange(e) {
 
   try {
     const sheet = e.source.getActiveSheet();
-    if (sheet.getName() !== 'Leads') return;
+    if (!['Leads', 'Pageviews'].includes(sheet.getName())) return;
 
     const lastRow = sheet.getLastRow();
     if (lastRow <= 2) return;
