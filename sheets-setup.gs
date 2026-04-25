@@ -4,7 +4,7 @@
 
 const META_PIXEL_ID      = "SEU_PIXEL_ID_AQUI";
 const META_ACCESS_TOKEN  = "SEU_ACCESS_TOKEN_AQUI";
-const META_EVENT_NAME    = "Lead";
+const META_EVENT_NAME    = "LeadQualificado";
 
 const STATUS_FIELD = "Status";
 const EMAIL_FIELD  = "Email";
