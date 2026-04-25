@@ -300,7 +300,7 @@ export default async function handler(req) {
     const row = headers.map(h => fieldMap[h] ?? '');
 
     // Grava
-    const appendUrl = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${sheetName}!A:A:append?valueInputOption=USER_ENTERED&insertDataOption=INSERT_ROWS`;
+    const appendUrl = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${sheetName}!A:A:append?valueInputOption=RAW&insertDataOption=INSERT_ROWS`;
     const res = await fetch(appendUrl, {
       method:  'POST',
       headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
