@@ -6,8 +6,11 @@ const META_PIXEL_ID      = "SEU_PIXEL_ID_AQUI";
 const META_ACCESS_TOKEN  = "SEU_ACCESS_TOKEN_AQUI";
 
 const STATUS_EVENTS = {
-  'Quente':  'LeadQualificado',
-  'Fechado': 'LeadFechado',
+  'Frio':           'LeadFrio',
+  'Morno':          'LeadMorno',
+  'Quente':         'LeadQualificado',
+  'Fechado':        'LeadFechado',
+  'Desqualificado': 'LeadDesqualificado',
 };
 
 const STATUS_FIELD = "Status";
@@ -227,25 +230,27 @@ function normalizePhone(phone) {
 function testarEnvio() {
   const sheet   = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
   const headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
+  const statusCol = headers.indexOf(STATUS_FIELD) + 1;
 
   let testRow = -1;
+  let testStatus = '';
   for (let i = 2; i <= sheet.getLastRow(); i++) {
-    const status = sheet.getRange(i, headers.indexOf(STATUS_FIELD) + 1).getValue();
-    if (status === 'Quente') { testRow = i; break; }
+    const status = sheet.getRange(i, statusCol).getValue();
+    if (STATUS_EVENTS[status]) { testRow = i; testStatus = status; break; }
   }
 
   if (testRow === -1) {
-    SpreadsheetApp.getUi().alert('Nenhum lead com Status "Quente" encontrado.');
+    SpreadsheetApp.getUi().alert('Nenhum lead com status válido encontrado.');
     return;
   }
 
   const props = PropertiesService.getScriptProperties();
-  props.deleteProperty('meta_sent_' + testRow);
+  props.deleteProperty('meta_sent_' + STATUS_EVENTS[testStatus] + '_' + testRow);
 
-  const result = enviarLeadQualificado(sheet, testRow, headers);
+  const result = enviarLeadQualificado(sheet, testRow, headers, testStatus);
 
   SpreadsheetApp.getUi().alert(
-    'Resultado Teste (linha ' + testRow + ')',
+    'Resultado Teste (linha ' + testRow + ' — ' + testStatus + ')',
     'Meta: ' + (result.success ? '✅ OK' : '❌ ' + (result.error || result.reason || 'HTTP ' + result.statusCode)) + '\n\n' +
     (META_PIXEL_ID === 'SEU_PIXEL_ID_AQUI' ? '⚠️ Configure META_PIXEL_ID e META_ACCESS_TOKEN no topo do script' : ''),
     SpreadsheetApp.getUi().ButtonSet.OK
@@ -275,8 +280,9 @@ function diagnosticar() {
 function limparCache() {
   const props = PropertiesService.getScriptProperties();
   const sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  const eventNames = Object.values(STATUS_EVENTS);
   for (let i = 2; i <= sheet.getLastRow(); i++) {
-    props.deleteProperty('meta_sent_' + i);
+    eventNames.forEach(e => props.deleteProperty('meta_sent_' + e + '_' + i));
   }
   SpreadsheetApp.getUi().alert('✅ Cache limpo. Todos os leads serão reenviados na próxima edição de Status.');
 }
