@@ -60,8 +60,8 @@ function onEdit(e) {
     const headers   = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
     const statusCol = headers.indexOf(STATUS_FIELD) + 1;
 
-    if (statusCol > 0 && col === statusCol && e.value === 'Quente') {
-      log('🔥 Status → Quente', { linha: row });
+    if (statusCol > 0 && col === statusCol && (e.value === 'Quente' || e.value === 'Fechado')) {
+      log('🔥 Status → ' + e.value, { linha: row });
       enviarLeadQualificado(sheet, row, headers);
     }
   } catch (err) {
