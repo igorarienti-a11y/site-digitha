@@ -4,7 +4,11 @@
 
 const META_PIXEL_ID      = "SEU_PIXEL_ID_AQUI";
 const META_ACCESS_TOKEN  = "SEU_ACCESS_TOKEN_AQUI";
-const META_EVENT_NAME    = "LeadQualificado";
+
+const STATUS_EVENTS = {
+  'Quente':  'LeadQualificado',
+  'Fechado': 'LeadFechado',
+};
 
 const STATUS_FIELD = "Status";
 const EMAIL_FIELD  = "Email";
@@ -60,9 +64,9 @@ function onEdit(e) {
     const headers   = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
     const statusCol = headers.indexOf(STATUS_FIELD) + 1;
 
-    if (statusCol > 0 && col === statusCol && (e.value === 'Quente' || e.value === 'Fechado')) {
+    if (statusCol > 0 && col === statusCol && STATUS_EVENTS[e.value]) {
       log('🔥 Status → ' + e.value, { linha: row });
-      enviarLeadQualificado(sheet, row, headers);
+      enviarLeadQualificado(sheet, row, headers, e.value);
     }
   } catch (err) {
     logError('onEdit', err);
@@ -74,18 +78,16 @@ function onEdit(e) {
 // ENVIO PRINCIPAL
 // ==========================================
 
-function enviarLeadQualificado(sheet, rowNumber, headers) {
+function enviarLeadQualificado(sheet, rowNumber, headers, status) {
   headers = headers || sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
   const rowData = sheet.getRange(rowNumber, 1, 1, sheet.getLastColumn()).getValues()[0];
 
   const lead = {};
   headers.forEach((h, i) => { if (h) lead[h] = rowData[i] ? rowData[i].toString() : ''; });
 
-  const props = PropertiesService.getScriptProperties();
-  props.deleteProperty('meta_sent_' + rowNumber);
-
-  const result = sendToMeta(lead, rowNumber);
-  log('📊 Resultado envio', { linha: rowNumber, meta: result.success });
+  const eventName = STATUS_EVENTS[status];
+  const result = sendToMeta(lead, rowNumber, eventName);
+  log('📊 Resultado envio', { linha: rowNumber, evento: eventName, meta: result.success });
   return result;
 }
 
@@ -94,15 +96,15 @@ function enviarLeadQualificado(sheet, rowNumber, headers) {
 // META — Conversions API
 // ==========================================
 
-function sendToMeta(lead, rowNumber) {
+function sendToMeta(lead, rowNumber, eventName) {
   try {
     if (META_PIXEL_ID === 'SEU_PIXEL_ID_AQUI') return { success: false, error: 'Pixel não configurado' };
 
     const props     = PropertiesService.getScriptProperties();
-    const cachedKey = 'meta_sent_' + rowNumber;
+    const cachedKey = 'meta_sent_' + eventName + '_' + rowNumber;
 
     if (props.getProperty(cachedKey)) {
-      log('⏭️ Meta: já enviado', { linha: rowNumber });
+      log('⏭️ Meta: já enviado', { linha: rowNumber, evento: eventName });
       return { success: false, skipped: true };
     }
 
@@ -112,9 +114,9 @@ function sendToMeta(lead, rowNumber) {
     const eventTime = Math.floor(Date.now() / 1000);
     const payload = {
       data: [{
-        event_name:    META_EVENT_NAME,
+        event_name:    eventName,
         event_time:    eventTime,
-        event_id:      'lead_quente_' + rowNumber + '_' + eventTime,
+        event_id:      eventName + '_' + rowNumber + '_' + eventTime,
         action_source: 'system_generated',
         user_data:     userData
       }]
