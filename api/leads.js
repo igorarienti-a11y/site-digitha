@@ -1,7 +1,8 @@
 export const config = { runtime: 'edge' };
 
-const SPREADSHEET_ID = '1T6tdglDqvB8kTdFqCLTw4riC-9xFqhZeEh4D0e14Bdw';
-const SHEET_NAME     = 'Leads';
+const SPREADSHEET_ID  = '1T6tdglDqvB8kTdFqCLTw4riC-9xFqhZeEh4D0e14Bdw';
+const SHEET_NAME      = 'Leads';
+const SHEET_PAGEVIEWS = 'Pageviews';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -74,12 +75,18 @@ function formatPhone(raw) {
   return '+55' + d;
 }
 
-function getIso() {
-  const now    = new Date();
+const MESES = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+
+function getLocalDate() {
+  const now   = new Date();
   const offset = -3;
   const local  = new Date(now.getTime() + (offset * 60 + now.getTimezoneOffset()) * 60000);
   const pad    = n => String(n).padStart(2, '0');
-  return `${local.getFullYear()}-${pad(local.getMonth()+1)}-${pad(local.getDate())}T${pad(local.getHours())}:${pad(local.getMinutes())}:${pad(local.getSeconds())}-03:00`;
+  return {
+    iso: `${local.getFullYear()}-${pad(local.getMonth()+1)}-${pad(local.getDate())}T${pad(local.getHours())}:${pad(local.getMinutes())}:${pad(local.getSeconds())}-03:00`,
+    br:  `${pad(local.getDate())}/${pad(local.getMonth()+1)}/${local.getFullYear()} ${pad(local.getHours())}:${pad(local.getMinutes())}`,
+    mes: `${MESES[local.getMonth()]}/${local.getFullYear()}`,
+  };
 }
 
 export default async function handler(req) {
@@ -89,47 +96,115 @@ export default async function handler(req) {
   try {
     const d    = await req.json();
     const utms = d.utms || {};
-    const mkt  = { sim: 'Sim, time interno', nao: 'Não possui', parcial: 'Parcial (freelancer/agência)' };
 
     const ip = req.headers.get('x-forwarded-for')?.split(',')[0].trim()
             || req.headers.get('x-real-ip')
             || '';
 
-    // Mapa: cabeçalho (lowercase, trimmed) → valor
-    const fieldMap = {
-      'data':               getIso(),
-      'nome':               d.name  || '',
-      'email':              (d.email || '').toLowerCase().trim(),
-      'telefone':           formatPhone(d.phone),
-      'empresa':            d.empresa || '',
-      'nicho':              d.nicho || '',
-      'marketing interno':  mkt[d.marketing] || d.marketing || '',
-      'mensagem':           (d.message || '').trim(),
-      'status':             '',
-      'utm_source':         utms.utm_source   || '',
-      'utm_medium':         utms.utm_medium   || '',
-      'utm_campaign':       utms.utm_campaign || '',
-      'utm_term':           utms.utm_term     || '',
-      'utm_content':        utms.utm_content  || '',
-      'event_id':           d.event_id  || '',
-      'fbclid':             d.fbclid    || '',
-      'gclid':              d.gclid     || '',
-      'gbraid':             d.gbraid    || '',
-      'wbraid':             d.wbraid    || '',
-      'ttclid':             d.ttclid    || '',
-      'msclkid':            d.msclkid   || '',
-      '_fbp':               d.fbp || '',
-      '_fbc':               d.fbc || '',
-      'first_name':         d.first_name || '',
-      'last_name':          d.last_name  || '',
-      'page_url':           d.page_url   || '',
-      'referrer':           d.referrer   || '',
-      'language':           d.language   || '',
-      'screen':             d.screen     || '',
-      'timezone':           d.timezone   || '',
-      'ip':                 ip,
-      'user_agent':         d.user_agent || '',
-    };
+    // Geolocalização por IP — cidade, estado, CEP para Meta Advanced Matching
+    let geo = { city: '', region_code: '', postal: '' };
+    if (ip) {
+      try {
+        const geoRes = await fetch(`https://ipapi.co/${ip}/json/`, {
+          headers: { 'User-Agent': 'digitha-site/1.0' }
+        });
+        if (geoRes.ok) {
+          const g = await geoRes.json();
+          geo = {
+            city:        g.city        || '',
+            region_code: (g.region_code || '').toLowerCase(),
+            postal:      (g.postal      || '').replace(/\D/g, '').substring(0, 8),
+          };
+        }
+      } catch (_) {}
+    }
+
+    const ts = getLocalDate();
+    let sheetName, fieldMap;
+
+    if (d.type === 'pageview') {
+      sheetName = SHEET_PAGEVIEWS;
+      fieldMap = {
+        // ── visível ──────────────────────────────
+        'mês':          ts.mes,
+        'data':         ts.br,
+        // ── origem ───────────────────────────────
+        'page_url':     d.page_url   || '',
+        'referrer':     d.referrer   || '',
+        // ── utms ─────────────────────────────────
+        'utm_source':   utms.utm_source   || '',
+        'utm_medium':   utms.utm_medium   || '',
+        'utm_campaign': utms.utm_campaign || '',
+        'utm_term':     utms.utm_term     || '',
+        'utm_content':  utms.utm_content  || '',
+        // ── click ids ────────────────────────────
+        'fbclid':       d.fbclid  || '',
+        'gclid':        d.gclid   || '',
+        'gbraid':       d.gbraid  || '',
+        'wbraid':       d.wbraid  || '',
+        'ttclid':       d.ttclid  || '',
+        'msclkid':      d.msclkid || '',
+        // ── cookies / advanced match ─────────────
+        'fbp':          d.fbp || '',
+        'fbc':          d.fbc || '',
+        'idioma':       d.language   || '',
+        'resolucao':    d.screen     || '',
+        'fuso horario': d.timezone   || '',
+        'ip':           ip,
+        'navegador':    d.user_agent || '',
+        'cidade':       geo.city,
+        'estado':       geo.region_code,
+        'cep':          geo.postal,
+        // ── timestamp técnico ─────────────────────
+        'data iso':     ts.iso,
+      };
+    } else {
+      const mkt = { sim: 'Sim, time interno', nao: 'Não possui', parcial: 'Parcial (freelancer/agência)' };
+      sheetName = SHEET_NAME;
+      fieldMap = {
+        // ── visível (comercial) ───────────────────
+        'mês':                ts.mes,
+        'data':               ts.br,
+        'nome':               d.name  || '',
+        'email':              (d.email || '').toLowerCase().trim(),
+        'telefone':           formatPhone(d.phone),
+        'empresa':            d.empresa || '',
+        'nicho':              d.nicho || '',
+        'marketing interno':  mkt[d.marketing] || d.marketing || '',
+        'mensagem':           (d.message || '').trim(),
+        'status':             '',
+        // ── utms ─────────────────────────────────
+        'utm_source':         utms.utm_source   || '',
+        'utm_medium':         utms.utm_medium   || '',
+        'utm_campaign':       utms.utm_campaign || '',
+        'utm_term':           utms.utm_term     || '',
+        'utm_content':        utms.utm_content  || '',
+        // ── advanced match ────────────────────────
+        'event id':           d.event_id  || '',
+        'fbclid':             d.fbclid    || '',
+        'gclid':              d.gclid     || '',
+        'gbraid':             d.gbraid    || '',
+        'wbraid':             d.wbraid    || '',
+        'ttclid':             d.ttclid    || '',
+        'msclkid':            d.msclkid   || '',
+        'fbp':                d.fbp || '',
+        'fbc':                d.fbc || '',
+        'primeiro nome':      d.first_name || '',
+        'sobrenome':          d.last_name  || '',
+        'pagina':             d.page_url   || '',
+        'referencia':         d.referrer   || '',
+        'idioma':             d.language   || '',
+        'resolucao':          d.screen     || '',
+        'fuso horario':       d.timezone   || '',
+        'ip':                 ip,
+        'navegador':          d.user_agent || '',
+        'cidade':             geo.city,
+        'estado':             geo.region_code,
+        'cep':                geo.postal,
+        // ── timestamp técnico (ISO 8601 -03:00) ──
+        'data iso':           ts.iso,
+      };
+    }
 
     let token;
     try {
@@ -139,7 +214,7 @@ export default async function handler(req) {
     }
 
     // Lê a linha 1 (cabeçalhos)
-    const headersUrl = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${SHEET_NAME}!1:1`;
+    const headersUrl = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${sheetName}!1:1`;
     const headersRes = await fetch(headersUrl, {
       headers: { 'Authorization': `Bearer ${token}` },
     });
@@ -152,7 +227,7 @@ export default async function handler(req) {
     const row = headers.map(h => fieldMap[h] ?? '');
 
     // Grava
-    const appendUrl = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${SHEET_NAME}!A:A:append?valueInputOption=USER_ENTERED&insertDataOption=INSERT_ROWS`;
+    const appendUrl = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${sheetName}!A:A:append?valueInputOption=USER_ENTERED&insertDataOption=INSERT_ROWS`;
     const res = await fetch(appendUrl, {
       method:  'POST',
       headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },

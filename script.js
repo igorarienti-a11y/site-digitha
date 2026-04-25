@@ -744,6 +744,40 @@ function initAnimations() {
     });
 
     // =========================================
+    // PAGEVIEW BEACON
+    // =========================================
+    (function sendPageview() {
+        const clickIds = getClickIds();
+        const utms     = getUtms();
+        const fbclid   = clickIds.fbclid || '';
+        let fbc        = getCookie('_fbc');
+        if (!fbc && fbclid) fbc = `fb.1.${Date.now()}.${fbclid}`;
+
+        fetch('/api/leads', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                type:       'pageview',
+                page_url:   window.location.href,
+                referrer:   document.referrer,
+                utms,
+                fbclid,
+                gclid:      clickIds.gclid   || '',
+                gbraid:     clickIds.gbraid  || '',
+                wbraid:     clickIds.wbraid  || '',
+                ttclid:     clickIds.ttclid  || '',
+                msclkid:    clickIds.msclkid || '',
+                fbp:        getCookie('_fbp'),
+                fbc,
+                language:   navigator.language,
+                screen:     `${window.screen.width}x${window.screen.height}`,
+                timezone:   Intl.DateTimeFormat().resolvedOptions().timeZone,
+                user_agent: navigator.userAgent,
+            }),
+        }).catch(() => {});
+    })();
+
+    // =========================================
     // PHONE INPUT MASK
     // =========================================
     const phoneInput = document.getElementById('form-phone');
