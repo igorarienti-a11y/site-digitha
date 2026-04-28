@@ -729,6 +729,8 @@ function initAnimations() {
         }
 
         if (success) {
+            window.dataLayer = window.dataLayer || [];
+            window.dataLayer.push({ event: 'send_form' });
             submitBtn.innerHTML = '✓ Recebido! Em breve entraremos em contato.';
             submitBtn.style.background = '#25d366';
             setTimeout(() => {
