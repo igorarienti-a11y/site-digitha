@@ -508,7 +508,7 @@ button, input, select, textarea {
 
 /* ---------- SOBRE A EMPRESA ---------- */
 .sobre-empresa {
-    padding: 140px 0 60px;
+    padding: 80px 0 60px;
     background: var(--color-bg);
     position: relative;
     overflow: hidden;
@@ -527,7 +527,7 @@ button, input, select, textarea {
 
 .sobre-empresa__header {
     max-width: 700px;
-    margin-bottom: 80px;
+    margin-bottom: 48px;
 }
 
 .sobre-empresa__header .section-title {
@@ -853,7 +853,8 @@ button, input, select, textarea {
 }
 
 /* ---------- SERVIÇOS ---------- */
-.servicos { padding: 120px 0 40px; position: relative; }
+.servicos { padding: 60px 0 0; position: relative; }
+.servicos .section-header { margin-bottom: 0; }
 .servicos__grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
@@ -1109,7 +1110,7 @@ button, input, select, textarea {
 /* Right: The Wheel */
 .wheel-visual {
     position: absolute;
-    right: -280px;
+    right: -60px;
     top: 50%;
     transform: translateY(-50%);
     width: 700px;
@@ -1187,7 +1188,13 @@ button, input, select, textarea {
     align-items: center;
     justify-content: center;
     z-index: 4;
-    transition: border-color 0.4s ease, box-shadow 0.4s ease, background 0.4s ease;
+    cursor: pointer;
+    transition: border-color 0.4s ease, box-shadow 0.4s ease, background 0.4s ease, transform 0.2s ease;
+}
+.wheel-node:hover:not(.active) {
+    border-color: rgba(232,82,26,0.5);
+    background: rgba(232,82,26,0.04);
+    transform: scale(1.1);
 }
 .wheel-node span {
     color: var(--color-text-muted);
@@ -1483,7 +1490,7 @@ button, input, select, textarea {
     .resultados__grid { grid-template-columns: repeat(2, 1fr); }
     .cta-final__content { grid-template-columns: 1fr; gap: 40px; }
     .wheel-visual {
-        right: -320px;
+        right: -120px;
         width: 600px;
         height: 600px;
     }
@@ -1521,7 +1528,7 @@ button, input, select, textarea {
 
     .wheel-info { width: 55%; padding: 40px 0 40px 24px; }
     .wheel-visual {
-        right: -350px;
+        right: -160px;
         width: 550px;
         height: 550px;
     }
@@ -2003,4 +2010,84 @@ button, input, select, textarea {
 @media (max-width: 768px) {
     .wheel-section   { display: none !important; }
     .services-mobile { display: block; }
+}
+
+/* ── SIDE NAV ─────────────────────────────────────────── */
+.side-nav {
+    position: fixed;
+    right: 24px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 900;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+}
+.side-nav.visible { opacity: 1; }
+
+.side-nav__list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 0;
+    margin: 0;
+}
+
+.side-nav__item {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 10px;
+    text-decoration: none;
+    position: relative;
+}
+
+.side-nav__item::before {
+    content: attr(data-label);
+    font-family: var(--font-display);
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+    opacity: 0;
+    transform: translateX(6px);
+    transition: opacity 0.25s ease, transform 0.25s ease, color 0.25s ease;
+    white-space: nowrap;
+    pointer-events: none;
+}
+
+.side-nav__item:hover::before,
+.side-nav__item.active::before {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.side-nav__item.active::before {
+    color: var(--color-accent);
+}
+
+.side-nav__dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--color-text-muted);
+    flex-shrink: 0;
+    transition: background 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+    display: block;
+}
+
+.side-nav__item:hover .side-nav__dot {
+    background: rgba(232,82,26,0.6);
+    transform: scale(1.3);
+}
+
+.side-nav__item.active .side-nav__dot {
+    background: var(--color-accent);
+    transform: scale(1.4);
+    box-shadow: 0 0 10px var(--color-accent-glow);
+}
+
+@media (max-width: 768px) {
+    .side-nav { display: none; }
 }

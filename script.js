@@ -358,7 +358,7 @@ function initAnimations() {
     let lastActiveIndex = -1;
     let rafId = null;
 
-    ScrollTrigger.create({
+    const wheelST = ScrollTrigger.create({
         trigger: wheelSection,
         start: 'top top',
         end: `+=${TOTAL_SCROLL}`,
@@ -410,6 +410,19 @@ function initAnimations() {
                 }
             });
         }
+    });
+
+    // ── Click on node → jump to that service ──────────────────────
+    wheelNodes.forEach((node, i) => {
+        node.addEventListener('click', () => {
+            const targetProgress = ENTRANCE_FRAC + (i / (TOTAL_SERVICES - 1)) * ROTATE_FRAC;
+            const targetScroll = wheelST.start + targetProgress * TOTAL_SCROLL;
+            if (useLerpScroll) {
+                targetY = targetScroll;
+            } else {
+                window.scrollTo({ top: targetScroll, behavior: 'smooth' });
+            }
+        });
     });
 
     // =========================================
@@ -599,6 +612,48 @@ function initAnimations() {
                 currentY = clamped;
                 window.scrollTo(0, clamped);
             }
+        });
+    });
+
+    // =========================================
+    // SIDE NAV
+    // =========================================
+    const sideNav      = document.getElementById('side-nav');
+    const sideItems    = document.querySelectorAll('.side-nav__item');
+    const navSections  = ['hero', 'pilares', 'servicos', 'resultados', 'clientes', 'quem-somos', 'contato'];
+
+    // Show after hero
+    ScrollTrigger.create({
+        trigger: '#hero',
+        start: 'bottom 80%',
+        onEnter:     () => sideNav.classList.add('visible'),
+        onLeaveBack: () => sideNav.classList.remove('visible'),
+    });
+
+    // Track active section
+    const sectionEls = navSections.map(id => document.getElementById(id)).filter(Boolean);
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (!entry.isIntersecting) return;
+            const id = entry.target.id;
+            sideItems.forEach(item => {
+                const href = item.getAttribute('href').replace('#', '');
+                item.classList.toggle('active', href === id);
+            });
+        });
+    }, { threshold: 0.3, rootMargin: '-10% 0px -10% 0px' });
+
+    sectionEls.forEach(el => observer.observe(el));
+
+    // Click → smooth scroll (reuse lerp)
+    sideItems.forEach(item => {
+        item.addEventListener('click', (e) => {
+            e.preventDefault();
+            const target = document.querySelector(item.getAttribute('href'));
+            if (!target) return;
+            const top = target.getBoundingClientRect().top + window.pageYOffset - header.offsetHeight - 20;
+            const clamped = Math.max(0, Math.min(document.body.scrollHeight - window.innerHeight, top));
+            if (useLerpScroll) { targetY = clamped; } else { window.scrollTo({ top: clamped, behavior: 'smooth' }); }
         });
     });
 
