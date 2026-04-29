@@ -342,8 +342,8 @@ function initAnimations() {
     setActiveService(0);
 
     // ── Scroll budget ──────────────────────────────────────────────
-    const ENTRANCE_PX   = isMobile ? 250 : 500;
-    const STEP_PX       = isMobile ? 380 : 700;
+    const ENTRANCE_PX   = isMobile ? 200 : 300;
+    const STEP_PX       = isMobile ? 280 : 450;
     const ROTATION_PX   = STEP_PX * (TOTAL_SERVICES - 1);
     const TOTAL_SCROLL  = ENTRANCE_PX + ROTATION_PX;
 
@@ -364,7 +364,7 @@ function initAnimations() {
         end: `+=${TOTAL_SCROLL}`,
         pin: true,
         anticipatePin: 1,
-        scrub: isMobile ? 1.2 : 1,
+        scrub: isMobile ? 0.6 : 0.4,
         invalidateOnRefresh: true,
         onRefresh: positionNodes,
         onLeaveBack: resetWheel,

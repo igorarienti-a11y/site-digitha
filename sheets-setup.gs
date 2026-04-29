@@ -23,7 +23,7 @@ const ENABLE_LOGS = true;
 
 // ==========================================
 // TRIGGER — onChange
-// Novo lead adicionado pela edge function → move para o topo
+// Novo lead adicionado pela edge function → move para o topo + envia Lead via CAPI
 // ==========================================
 
 function onChange(e) {
@@ -46,6 +46,14 @@ function onChange(e) {
     sheet.deleteRow(lastRow + 1);
 
     log('↑ Lead movido para o topo', { linhaOrigem: lastRow });
+
+    if (sheet.getName() === 'Leads') {
+      const headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
+      const lead = {};
+      headers.forEach((h, i) => { if (h) lead[h] = rowData[i] ? rowData[i].toString() : ''; });
+      const result = sendToMeta(lead, 2, 'Lead', lead['Event ID'] || null);
+      log('📊 Lead CAPI', { meta: result.success });
+    }
   } catch (err) {
     logError('onChange', err);
   }
@@ -54,7 +62,7 @@ function onChange(e) {
 
 // ==========================================
 // TRIGGER — onEdit
-// Status → "Quente" dispara envio para Meta
+// Mudança de Status dispara envio para Meta
 // ==========================================
 
 function onEdit(e) {
@@ -99,12 +107,14 @@ function enviarLeadQualificado(sheet, rowNumber, headers, status) {
 // META — Conversions API
 // ==========================================
 
-function sendToMeta(lead, rowNumber, eventName) {
+function sendToMeta(lead, rowNumber, eventName, eventId) {
   try {
     if (META_PIXEL_ID === 'SEU_PIXEL_ID_AQUI') return { success: false, error: 'Pixel não configurado' };
 
     const props     = PropertiesService.getScriptProperties();
-    const cachedKey = 'meta_sent_' + eventName + '_' + rowNumber;
+    const cachedKey = eventId
+      ? 'meta_sent_' + eventName + '_' + eventId
+      : 'meta_sent_' + eventName + '_' + rowNumber;
 
     if (props.getProperty(cachedKey)) {
       log('⏭️ Meta: já enviado', { linha: rowNumber, evento: eventName });
@@ -119,12 +129,11 @@ function sendToMeta(lead, rowNumber, eventName) {
       data: [{
         event_name:    eventName,
         event_time:    eventTime,
-        event_id:      eventName + '_' + rowNumber + '_' + eventTime,
+        event_id:      eventId || (eventName + '_' + rowNumber + '_' + eventTime),
         action_source: 'system_generated',
         user_data:     userData
       }]
     };
-
     const url = 'https://graph.facebook.com/v19.0/' + META_PIXEL_ID + '/events?access_token=' + META_ACCESS_TOKEN;
     const res = UrlFetchApp.fetch(url, {
       method: 'post',
@@ -279,11 +288,8 @@ function diagnosticar() {
 
 function limparCache() {
   const props = PropertiesService.getScriptProperties();
-  const sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
-  const eventNames = Object.values(STATUS_EVENTS);
-  for (let i = 2; i <= sheet.getLastRow(); i++) {
-    eventNames.forEach(e => props.deleteProperty('meta_sent_' + e + '_' + i));
-  }
+  const keys  = props.getKeys();
+  keys.filter(k => k.startsWith('meta_sent_')).forEach(k => props.deleteProperty(k));
   SpreadsheetApp.getUi().alert('✅ Cache limpo. Todos os leads serão reenviados na próxima edição de Status.');
 }
 

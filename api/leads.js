@@ -1,15 +1,21 @@
 export const config = { runtime: 'edge' };
 
-const SPREADSHEET_ID  = '1T6tdglDqvB8kTdFqCLTw4riC-9xFqhZeEh4D0e14Bdw';
+const SPREADSHEET_ID  = process.env.SPREADSHEET_ID;
 const SHEET_NAME      = 'Leads';
 const SHEET_PAGEVIEWS = 'Pageviews';
 const META_API_VER    = 'v19.0';
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'content-type',
-  'Access-Control-Allow-Methods': 'POST, OPTIONS',
-};
+const ALLOWED_ORIGINS = (process.env.ALLOWED_ORIGINS || '').split(',').map(s => s.trim()).filter(Boolean);
+
+function getCorsHeaders(origin) {
+  const allowed = ALLOWED_ORIGINS.length === 0 || ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0];
+  return {
+    'Access-Control-Allow-Origin': allowed || '*',
+    'Access-Control-Allow-Headers': 'content-type',
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Vary': 'Origin',
+  };
+}
 
 async function getAccessToken(serviceAccountKey) {
   const key = JSON.parse(serviceAccountKey);
@@ -163,6 +169,9 @@ function getLocalDate() {
 }
 
 export default async function handler(req) {
+  const origin = req.headers.get('origin') || '';
+  const corsHeaders = getCorsHeaders(origin);
+
   if (req.method === 'OPTIONS') return new Response(null, { headers: corsHeaders });
   if (req.method !== 'POST')   return new Response('Method Not Allowed', { status: 405, headers: corsHeaders });
 
@@ -322,7 +331,8 @@ export default async function handler(req) {
     });
 
   } catch (err) {
-    return new Response(JSON.stringify({ success: false, error: err.message }), {
+    console.error('[leads] internal error:', err);
+    return new Response(JSON.stringify({ success: false, error: 'Internal error' }), {
       status:  500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
