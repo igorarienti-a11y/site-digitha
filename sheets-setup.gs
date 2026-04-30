@@ -356,6 +356,16 @@ function testarEnvio() {
   );
 }
 
+// Simula um evento INSERT_ROW para testar o onChange manualmente do editor
+function simularOnChange() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  onChange({
+    changeType: 'INSERT_ROW',
+    source: ss
+  });
+  Logger.log('✅ simularOnChange executado — confira os logs acima');
+}
+
 function diagnosticar() {
   const sheet   = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Leads');
   if (!sheet) { SpreadsheetApp.getUi().alert('Aba "Leads" não encontrada.'); return; }
