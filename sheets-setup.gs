@@ -4,6 +4,7 @@
 
 const META_PIXEL_ID      = "SEU_PIXEL_ID_AQUI";
 const META_ACCESS_TOKEN  = "SEU_ACCESS_TOKEN_AQUI";
+const META_TEST_CODE     = "";  // cola aqui o test_event_code da Meta (ex: "TEST12345") só durante debug — depois deixa vazio
 
 const MESES = ['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
 
@@ -218,6 +219,7 @@ function sendToMeta(lead, rowNumber, eventName, eventId) {
         user_data:     userData
       }]
     };
+    if (META_TEST_CODE) payload.test_event_code = META_TEST_CODE;
     const url = 'https://graph.facebook.com/v19.0/' + META_PIXEL_ID + '/events';
     const res = UrlFetchApp.fetch(url, {
       method: 'post',
