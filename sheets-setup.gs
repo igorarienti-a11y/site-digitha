@@ -31,12 +31,49 @@ const ENABLE_LOGS = true;
 function onOpen() {
   SpreadsheetApp.getUi().createMenu('Leads')
     .addItem('Formatar + Reordenar todos', 'formatarTodosLeads')
+    .addItem('Preencher Event IDs ausentes', 'preencherEventIDsAusentes')
     .addItem('Limpar Data ISO inválido',   'limparDataISOInvalido')
     .addItem('Configurar planilha',        'configurarTudo')
     .addItem('Testar envio CAPI',          'testarEnvio')
     .addItem('Diagnóstico',                'diagnosticar')
     .addItem('Limpar cache Meta',          'limparCache')
     .addToUi();
+}
+
+function gerarUUIDv4() {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+    const r = Math.random() * 16 | 0;
+    return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+  });
+}
+
+function preencherEventIDsAusentes() {
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Leads');
+  if (!sheet) { SpreadsheetApp.getUi().alert('Aba "Leads" não encontrada.'); return; }
+  const lastRow = sheet.getLastRow();
+  if (lastRow < 2) return;
+
+  const headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
+  const eventIdCol = headers.indexOf('Event ID') + 1;
+  if (eventIdCol === 0) { SpreadsheetApp.getUi().alert('Coluna "Event ID" não encontrada.'); return; }
+
+  const range  = sheet.getRange(2, eventIdCol, lastRow - 1, 1);
+  const values = range.getValues();
+  let preenchidos = 0;
+
+  const novos = values.map(([v]) => {
+    const s = String(v || '').trim();
+    // Considera ausente se vazio ou se não é UUID válido (ex: "-")
+    if (!s || !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(s)) {
+      preenchidos++;
+      return [gerarUUIDv4()];
+    }
+    return [v];
+  });
+
+  range.setNumberFormat('@').setValues(novos);
+  SpreadsheetApp.getUi().alert('✅ ' + preenchidos + ' Event IDs preenchidos.');
+  log('🔑 Event IDs gerados', { quantidade: preenchidos });
 }
 
 
