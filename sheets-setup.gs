@@ -519,12 +519,28 @@ function parseDataLocal(val) {
 function formatarLinha(sheet, row) {
   const numCols = Math.min(NUM_COLS, sheet.getLastColumn());
   const values  = sheet.getRange(row, 1, 1, numCols).getValues()[0];
-  const dataISO = String(values[COL_DATAISO] || '').trim();
-  const dataRaw = String(values[COL_DATA]    || '').trim();
+
+  // Normaliza telefone PRIMEIRO — independente de data ser válida
+  const telRaw = String(values[COL_TELEFONE] || '').trim();
+  if (telRaw) {
+    const telE164 = formatarTelefoneE164(telRaw);
+    if (telE164 && telE164 !== telRaw) {
+      sheet.getRange(row, COL_TELEFONE + 1).setNumberFormat('@').setValue(telE164);
+    }
+  }
+
+  const dataISORaw = values[COL_DATAISO];
+  const dataRawVal = values[COL_DATA];
+  const dataISO    = String(dataISORaw || '').trim();
+  const dataRaw    = String(dataRawVal || '').trim();
 
   let dateObj  = null;
 
-  if (dataISO) {
+  // Aceita Date object direto (Sheets pode retornar assim)
+  if (dataISORaw instanceof Date && !isNaN(dataISORaw)) dateObj = dataISORaw;
+  if (!dateObj && dataRawVal instanceof Date && !isNaN(dataRawVal)) dateObj = dataRawVal;
+
+  if (!dateObj && dataISO) {
     dateObj = parseDataLocal(dataISO);
   }
 
@@ -545,15 +561,6 @@ function formatarLinha(sheet, row) {
 
   if (!String(values[COL_MES] || '').trim()) {
     sheet.getRange(row, COL_MES + 1).setValue(MESES[dateObj.getMonth()] + '/' + yyyy);
-  }
-
-  // Normaliza telefone para E.164 (+55XXXXXXXXXXX)
-  const telRaw = String(values[COL_TELEFONE] || '').trim();
-  if (telRaw) {
-    const telE164 = formatarTelefoneE164(telRaw);
-    if (telE164 && telE164 !== telRaw) {
-      sheet.getRange(row, COL_TELEFONE + 1).setNumberFormat('@').setValue(telE164);
-    }
   }
 
   const rowColor = (row % 2 === 0) ? BAND_ODD : BAND_EVEN;
