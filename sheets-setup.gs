@@ -33,12 +33,62 @@ function onOpen() {
   SpreadsheetApp.getUi().createMenu('Leads')
     .addItem('Formatar + Reordenar todos', 'formatarTodosLeads')
     .addItem('Preencher Event IDs ausentes', 'preencherEventIDsAusentes')
+    .addItem('Enviar linha selecionada como Lead', 'enviarLinhaSelecionadaComoLead')
     .addItem('Limpar Data ISO inválido',   'limparDataISOInvalido')
     .addItem('Configurar planilha',        'configurarTudo')
     .addItem('Testar envio CAPI',          'testarEnvio')
     .addItem('Diagnóstico',                'diagnosticar')
     .addItem('Limpar cache Meta',          'limparCache')
     .addToUi();
+}
+
+function enviarLinhaSelecionadaComoLead() {
+  const ui = SpreadsheetApp.getUi();
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Leads');
+  if (!sheet) { ui.alert('Aba "Leads" não encontrada.'); return; }
+
+  const activeSheet = SpreadsheetApp.getActiveSheet();
+  if (activeSheet.getName() !== 'Leads') {
+    ui.alert('Selecione uma célula na aba "Leads" antes.');
+    return;
+  }
+
+  const row = activeSheet.getActiveRange().getRow();
+  if (row < 2) { ui.alert('Selecione uma linha de dados (não o cabeçalho).'); return; }
+
+  const headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
+  const rowData = sheet.getRange(row, 1, 1, sheet.getLastColumn()).getValues()[0];
+
+  const lead = {};
+  headers.forEach((h, i) => { if (h) lead[h] = rowData[i] ? rowData[i].toString() : ''; });
+
+  if (!lead[EMAIL_FIELD] && !lead[PHONE_FIELD]) {
+    ui.alert('❌ Linha sem email nem telefone — Meta exige pelo menos um.');
+    return;
+  }
+
+  // Garante Event ID
+  let eventId = lead['Event ID'];
+  if (!eventId || !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(eventId)) {
+    eventId = gerarUUIDv4();
+    const eventIdCol = headers.indexOf('Event ID') + 1;
+    sheet.getRange(row, eventIdCol).setNumberFormat('@').setValue(eventId);
+    lead['Event ID'] = eventId;
+  }
+
+  // Limpa cache pra forçar reenvio
+  PropertiesService.getScriptProperties().deleteProperty('meta_sent_Lead_' + eventId);
+
+  const result = sendToMeta(lead, row, 'Lead', eventId);
+
+  ui.alert(
+    'Envio à Meta — linha ' + row,
+    'Status: ' + (result.success ? '✅ OK (HTTP ' + result.statusCode + ')' : '❌ ' + (result.error || 'HTTP ' + result.statusCode)) + '\n\n' +
+    'Email: ' + (lead[EMAIL_FIELD] || 'N/A') + '\n' +
+    'Telefone: ' + (lead[PHONE_FIELD] || 'N/A') + '\n' +
+    'Event ID: ' + eventId,
+    ui.ButtonSet.OK
+  );
 }
 
 function gerarUUIDv4() {
