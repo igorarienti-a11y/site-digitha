@@ -549,13 +549,13 @@ function moverLeadsParaOTopo() {
   const data = sheet.getRange(2, 1, lastRow - 1, actualCols).getValues();
 
   const getTs = row => {
-    const isoVal  = row[COL_DATAISO];
     const dataVal = row[COL_DATA];
-    // Sheets retorna Date objects quando interpreta a célula como data — tratar direto
-    if (isoVal  instanceof Date && !isNaN(isoVal))  return isoVal.getTime();
+    const isoVal  = row[COL_DATAISO];
+    // Coluna Data é prioritária. Sheets retorna Date object quando interpreta como data.
     if (dataVal instanceof Date && !isNaN(dataVal)) return dataVal.getTime();
-    const d = parseDataLocal(String(isoVal  || '').trim())
-           || parseDataLocal(String(dataVal || '').trim());
+    if (isoVal  instanceof Date && !isNaN(isoVal))  return isoVal.getTime();
+    const d = parseDataLocal(String(dataVal || '').trim())
+           || parseDataLocal(String(isoVal  || '').trim());
     return d ? d.getTime() : 0;
   };
 
