@@ -474,10 +474,23 @@ function configurarAba(nomeAba, headers, secoes) {
 // ==========================================
 
 // Índices fixos das colunas (0-based) — evita bugs com headers.indexOf
-const COL_MES     = 0;   // A — Mês
-const COL_DATA    = 1;   // B — Data
-const COL_DATAISO = 36;  // AK — Data ISO
-const NUM_COLS    = 37;
+const COL_MES      = 0;   // A — Mês
+const COL_DATA     = 1;   // B — Data
+const COL_TELEFONE = 4;   // E — Telefone
+const COL_DATAISO  = 36;  // AK — Data ISO
+const NUM_COLS     = 37;
+
+// Garante formato E.164 com + no início: +5548999999999
+function formatarTelefoneE164(raw) {
+  if (!raw) return '';
+  let d = raw.toString().replace(/\D/g, '');
+  if (!d) return '';
+  if (d.startsWith('0')) d = d.substring(1);
+  if (d.startsWith('55') && d.length >= 12 && d.length <= 13) return '+' + d;
+  if (d.length === 11) return '+55' + d;
+  if (d.length === 10) return '+55' + d;  // mantém 10 dígitos no sheet (rejeição é só pra Meta)
+  return '+' + d;
+}
 
 function parseDataLocal(val) {
   if (!val || typeof val !== 'string' || val.trim() === '') return null;
@@ -532,6 +545,15 @@ function formatarLinha(sheet, row) {
 
   if (!String(values[COL_MES] || '').trim()) {
     sheet.getRange(row, COL_MES + 1).setValue(MESES[dateObj.getMonth()] + '/' + yyyy);
+  }
+
+  // Normaliza telefone para E.164 (+55XXXXXXXXXXX)
+  const telRaw = String(values[COL_TELEFONE] || '').trim();
+  if (telRaw) {
+    const telE164 = formatarTelefoneE164(telRaw);
+    if (telE164 && telE164 !== telRaw) {
+      sheet.getRange(row, COL_TELEFONE + 1).setNumberFormat('@').setValue(telE164);
+    }
   }
 
   const rowColor = (row % 2 === 0) ? BAND_ODD : BAND_EVEN;
