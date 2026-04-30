@@ -269,7 +269,7 @@ function sendToMeta(lead, rowNumber, eventName, eventId) {
         user_data:     userData
       }]
     };
-    if (META_TEST_CODE) payload.test_event_code = META_TEST_CODE;
+    if (typeof META_TEST_CODE !== 'undefined' && META_TEST_CODE) payload.test_event_code = META_TEST_CODE;
     const url = 'https://graph.facebook.com/v19.0/' + META_PIXEL_ID + '/events';
     const res = UrlFetchApp.fetch(url, {
       method: 'post',
