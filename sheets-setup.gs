@@ -5,6 +5,8 @@
 const META_PIXEL_ID      = "SEU_PIXEL_ID_AQUI";
 const META_ACCESS_TOKEN  = "SEU_ACCESS_TOKEN_AQUI";
 
+const MESES = ['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
+
 const STATUS_EVENTS = {
   'Frio':           'LeadFrio',
   'Morno':          'LeadMorno',
@@ -22,37 +24,59 @@ const ENABLE_LOGS = true;
 
 
 // ==========================================
+// TRIGGER — onOpen
+// Registra menu de utilitários na planilha
+// ==========================================
+
+function onOpen() {
+  SpreadsheetApp.getUi().createMenu('Leads')
+    .addItem('Formatar + Reordenar todos', 'formatarTodosLeads')
+    .addItem('Configurar planilha',        'configurarTudo')
+    .addItem('Testar envio CAPI',          'testarEnvio')
+    .addItem('Diagnóstico',                'diagnosticar')
+    .addItem('Limpar cache Meta',          'limparCache')
+    .addToUi();
+}
+
+
+// ==========================================
 // TRIGGER — onChange
-// Novo lead adicionado pela edge function → move para o topo + envia Lead via CAPI
+// Lead inserido via Typebot → move para topo + formata + envia Lead via CAPI
 // ==========================================
 
 function onChange(e) {
-  if (e.changeType !== 'INSERT_ROW') return;
+  if (!e || e.changeType !== 'INSERT_ROW') return;
 
   try {
-    const sheet = e.source.getActiveSheet();
-    if (!['Leads', 'Pageviews'].includes(sheet.getName())) return;
+    const ss = e.source;
 
-    const lastRow = sheet.getLastRow();
-    if (lastRow <= 2) return;
+    for (const name of ['Leads', 'Pageviews']) {
+      const sheet = ss.getSheetByName(name);
+      if (!sheet) continue;
 
-    const rowData = sheet.getRange(lastRow, 1, 1, sheet.getLastColumn()).getValues()[0];
-    const hasData = rowData.some(cell => cell !== '');
-    if (!hasData) return;
+      const lastRow = sheet.getLastRow();
+      if (lastRow <= 2) continue;
 
-    // Move última linha para posição 2 (logo abaixo do cabeçalho)
-    sheet.insertRowBefore(2);
-    sheet.getRange(2, 1, 1, sheet.getLastColumn()).setValues([rowData]);
-    sheet.deleteRow(lastRow + 1);
-
-    log('↑ Lead movido para o topo', { linhaOrigem: lastRow });
-
-    if (sheet.getName() === 'Leads') {
       const headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
-      const lead = {};
-      headers.forEach((h, i) => { if (h) lead[h] = rowData[i] ? rowData[i].toString() : ''; });
-      const result = sendToMeta(lead, 2, 'Lead', lead['Event ID'] || null);
-      log('📊 Lead CAPI', { meta: result.success });
+      const rowData = sheet.getRange(lastRow, 1, 1, sheet.getLastColumn()).getValues()[0];
+
+      // Guard: verificar coluna-chave para saber se esta aba recebeu o insert
+      const keyCol = name === 'Leads' ? headers.indexOf('Email') : headers.indexOf('Pagina');
+      if (keyCol === -1 || !rowData[keyCol]) continue;
+
+      sheet.insertRowBefore(2);
+      sheet.getRange(2, 1, 1, sheet.getLastColumn()).setValues([rowData]);
+      sheet.deleteRow(lastRow + 1);
+      formatarLinha(sheet, 2);
+
+      log('↑ Lead movido para o topo', { sheet: name, linhaOrigem: lastRow });
+
+      if (name === 'Leads') {
+        const lead = {};
+        headers.forEach((h, i) => { if (h) lead[h] = rowData[i] ? rowData[i].toString() : ''; });
+        const result = sendToMeta(lead, 2, 'Lead', lead['Event ID'] || null);
+        log('📊 Lead CAPI', { meta: result.success });
+      }
     }
   } catch (err) {
     logError('onChange', err);
@@ -62,16 +86,18 @@ function onChange(e) {
 
 // ==========================================
 // TRIGGER — onEdit
-// Mudança de Status dispara envio para Meta
+// Mudança de Status na aba Leads dispara envio para Meta
 // ==========================================
 
 function onEdit(e) {
+  const sheet = e.source.getActiveSheet();
+  if (sheet.getName() !== 'Leads') return;
+
   const row = e.range.getRow();
   const col = e.range.getColumn();
   if (row === 1) return;
 
   try {
-    const sheet     = e.source.getActiveSheet();
     const headers   = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
     const statusCol = headers.indexOf(STATUS_FIELD) + 1;
 
@@ -157,7 +183,6 @@ function sendToMeta(lead, rowNumber, eventName, eventId) {
 
 // ==========================================
 // HASH E NORMALIZAÇÃO — Meta Advanced Matching
-// Referência: Parâmetros de Informações do Cliente (Meta)
 // ==========================================
 
 function buildUserData(lead) {
@@ -173,9 +198,8 @@ function buildUserData(lead) {
 
   const ud = {};
 
-  // ── Com hash SHA-256 ──────────────────────────────────
   if (email) ud.em         = [sha256(normalizeEmail(email))];
-  if (phone) ud.ph         = [sha256(normalizePhone(phone))];  // só dígitos com DDI, sem +
+  if (phone) ud.ph         = [sha256(normalizePhone(phone))];
   if (fn)    ud.fn         = [sha256(fn)];
   if (ln)    ud.ln         = [sha256(ln)];
   ud.country               = [sha256('br')];
@@ -184,7 +208,6 @@ function buildUserData(lead) {
   if (lead['Estado'])    ud.st = [sha256(lead['Estado'].toLowerCase().substring(0, 2))];
   if (lead['CEP'])       ud.zp = [sha256(lead['CEP'].replace(/\D/g, ''))];
 
-  // ── Sem hash (texto simples) ──────────────────────────
   if (lead['IP'])        ud.client_ip_address = lead['IP'];
   if (lead['Navegador']) ud.client_user_agent  = lead['Navegador'];
   if (lead['FBC'])       ud.fbc                = lead['FBC'];
@@ -195,20 +218,15 @@ function buildUserData(lead) {
 
 function normalizeName(name) {
   return (name || '')
-    .toLowerCase()
-    .trim()
-    .normalize('NFD')
-    .replace(/[̀-ͯ]/g, '')
-    .replace(/[^a-z\s]/g, '')
-    .trim();
+    .toLowerCase().trim()
+    .normalize('NFD').replace(/[̀-ͯ]/g, '')
+    .replace(/[^a-z\s]/g, '').trim();
 }
 
 function normalizeCity(city) {
-  // Meta: lowercase, sem acentos, sem espaços, sem pontuação
   return (city || '')
     .toLowerCase()
-    .normalize('NFD')
-    .replace(/[̀-ͯ]/g, '')
+    .normalize('NFD').replace(/[̀-ͯ]/g, '')
     .replace(/[^a-z]/g, '');
 }
 
@@ -222,7 +240,6 @@ function normalizeEmail(email) {
 }
 
 function normalizePhone(phone) {
-  // Meta: só dígitos com DDI, sem + → ex: 5548999999999
   if (!phone) return '';
   let d = phone.toString().replace(/\D/g, '');
   if (d.startsWith('0')) d = d.substring(1);
@@ -237,7 +254,8 @@ function normalizePhone(phone) {
 // ==========================================
 
 function testarEnvio() {
-  const sheet   = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  const sheet   = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Leads');
+  if (!sheet) { SpreadsheetApp.getUi().alert('Aba "Leads" não encontrada.'); return; }
   const headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
   const statusCol = headers.indexOf(STATUS_FIELD) + 1;
 
@@ -267,7 +285,8 @@ function testarEnvio() {
 }
 
 function diagnosticar() {
-  const sheet   = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  const sheet   = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Leads');
+  if (!sheet) { SpreadsheetApp.getUi().alert('Aba "Leads" não encontrada.'); return; }
   const headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
 
   let quentes = 0;
@@ -317,15 +336,11 @@ const STATUS_TAGS   = [
 ];
 
 const LEADS_HEADERS = [
-  // Comercial
   'Mês', 'Data', 'Nome', 'Email', 'Telefone', 'Empresa', 'Nicho', 'Marketing Interno', 'Mensagem', 'Status',
-  // UTMs
   'utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content',
-  // Advanced Match (col 16+)
   'Event ID', 'FBCLID', 'GCLID', 'GBRAID', 'WBRAID', 'TTCLID', 'MSCLKID',
   'FBP', 'FBC', 'Primeiro Nome', 'Sobrenome', 'Pagina', 'Referencia',
   'Idioma', 'Resolucao', 'Fuso Horario', 'IP', 'Navegador', 'Cidade', 'Estado', 'CEP',
-  // Técnico
   'Data ISO',
 ];
 
@@ -399,7 +414,6 @@ function configurarAba(nomeAba, headers, secoes) {
   if (nomeAba === 'Leads') {
     const sheetHeaders = sheet.getRange(1, 1, 1, headers.length).getValues()[0];
     const statusCol    = sheetHeaders.indexOf('Status') + 1;
-    log('Status na coluna ' + statusCol);
 
     sheet.getRange(1, 1, sheet.getMaxRows(), headers.length).clearDataValidations();
 
@@ -420,6 +434,111 @@ function configurarAba(nomeAba, headers, secoes) {
 
   sheet.getRange(2, 1, sheet.getMaxRows() - 1, 2).setHorizontalAlignment('center');
   log('✓ ' + nomeAba + ': ' + headers.length + ' colunas configuradas');
+}
+
+
+// ==========================================
+// FORMATAÇÃO DE LINHAS
+// ==========================================
+
+function parseDataLocal(val) {
+  if (!val) return null;
+  if (val instanceof Date) return val;
+  const s = val.toString().trim();
+
+  // ISO: 2026-04-29T19:07:55-03:00
+  const mIso = s.match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/);
+  if (mIso) return new Date(parseInt(mIso[1]), parseInt(mIso[2]) - 1, parseInt(mIso[3]), parseInt(mIso[4]), parseInt(mIso[5]));
+
+  // Já formatado: 29/04/2026 19:07
+  const mBr = s.match(/^(\d{2})\/(\d{2})\/(\d{4})\s+(\d{2}):(\d{2})/);
+  if (mBr) return new Date(parseInt(mBr[3]), parseInt(mBr[2]) - 1, parseInt(mBr[1]), parseInt(mBr[4]), parseInt(mBr[5]));
+
+  return null;
+}
+
+function formatarLinha(sheet, row) {
+  const headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
+  const dataCol = headers.indexOf('Data') + 1;
+  const mesCol  = headers.indexOf('Mês') + 1;
+  const isoCol  = headers.indexOf('Data ISO') + 1;
+  if (dataCol === 0) return;
+
+  // Usar Data ISO como fonte primária (preserva original); fallback para coluna Data
+  const isoVal  = isoCol > 0 ? sheet.getRange(row, isoCol).getValue() : '';
+  const dataVal = sheet.getRange(row, dataCol).getValue();
+  const rawVal  = isoVal || dataVal;
+
+  const d = parseDataLocal(rawVal);
+  if (!d) return;
+
+  // Backup ISO antes de sobrescrever coluna Data
+  if (isoCol > 0 && !isoVal) {
+    const isoStr = (dataVal instanceof Date) ? dataVal.toISOString() : dataVal.toString();
+    sheet.getRange(row, isoCol).setValue(isoStr);
+  }
+
+  const pad = n => String(n).padStart(2, '0');
+  sheet.getRange(row, dataCol).setValue(
+    `${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}`
+  );
+
+  if (mesCol > 0 && !sheet.getRange(row, mesCol).getValue()) {
+    sheet.getRange(row, mesCol).setValue(MESES[d.getMonth()] + '/' + d.getFullYear());
+  }
+
+  const rowColor = (row % 2 === 0) ? BAND_ODD : BAND_EVEN;
+  sheet.getRange(row, 1, 1, sheet.getLastColumn()).setBackground(rowColor);
+  sheet.getRange(row, 1).setBackground(MES_BG).setFontColor(MES_FG);
+}
+
+function moverLeadsParaOTopo() {
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Leads');
+  if (!sheet) return;
+
+  const lastRow = sheet.getLastRow();
+  if (lastRow <= 2) return;
+
+  const headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
+  const isoCol  = headers.indexOf('Data ISO');
+  if (isoCol === -1) return;
+
+  const numCols = sheet.getLastColumn();
+  const data    = sheet.getRange(2, 1, lastRow - 1, numCols).getValues();
+
+  // Ordena por Data ISO decrescente (string ISO é comparável lexicograficamente)
+  data.sort((a, b) => {
+    const da = a[isoCol] ? a[isoCol].toString() : '';
+    const db = b[isoCol] ? b[isoCol].toString() : '';
+    return db.localeCompare(da);
+  });
+
+  sheet.getRange(2, 1, data.length, numCols).setValues(data);
+
+  // Reaplicar cores após reordenação
+  for (let i = 2; i <= lastRow; i++) {
+    const rowColor = (i % 2 === 0) ? BAND_ODD : BAND_EVEN;
+    sheet.getRange(i, 1, 1, numCols).setBackground(rowColor);
+    sheet.getRange(i, 1).setBackground(MES_BG).setFontColor(MES_FG);
+  }
+
+  log('↕ Leads reordenados por Data ISO', { total: data.length });
+}
+
+function formatarTodosLeads() {
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Leads');
+  if (!sheet) { SpreadsheetApp.getUi().alert('Aba "Leads" não encontrada.'); return; }
+
+  const lastRow = sheet.getLastRow();
+  if (lastRow <= 1) return;
+
+  for (let i = 2; i <= lastRow; i++) {
+    formatarLinha(sheet, i);
+  }
+
+  moverLeadsParaOTopo();
+
+  SpreadsheetApp.getUi().alert('✅ ' + (lastRow - 1) + ' leads formatados e reordenados.');
 }
 
 

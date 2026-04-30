@@ -725,11 +725,47 @@
     <script type="module">
       import Typebot from 'https://cdn.jsdelivr.net/npm/@typebot.io/js@0/dist/web.js'
 
+      const _params  = new URLSearchParams(window.location.search);
+      const _utmKeys = ['utm_source','utm_medium','utm_campaign','utm_term','utm_content'];
+      const _stored  = (() => { try { return JSON.parse(sessionStorage.getItem('digitha_utms') || '{}'); } catch(e) { return {}; } })();
+      const _utms    = {};
+      _utmKeys.forEach(k => { _utms[k] = _params.get(k) || _stored[k] || ''; });
+
+      const _getCookie = n => { const m = document.cookie.match(new RegExp('(^| )' + n + '=([^;]+)')); return m ? decodeURIComponent(m[2]) : ''; };
+      const _fbclid  = _params.get('fbclid') || '';
+      const _fbp     = _getCookie('_fbp');
+      const _fbc     = _getCookie('_fbc') || (_fbclid ? `fb.1.${Date.now()}.${_fbclid}` : '');
+      const _gclid   = _params.get('gclid')   || '';
+      const _gbraid  = _params.get('gbraid')  || '';
+      const _wbraid  = _params.get('wbraid')  || '';
+      const _ttclid  = _params.get('ttclid')  || '';
+      const _msclkid = _params.get('msclkid') || '';
+
       Typebot.initBubble({
         typebot: "digitha-3xnilko",
         theme: {
           button: { backgroundColor: "#29a71a", customIconSrc: "https://cdn-icons-png.flaticon.com/512/3670/3670051.png", size: "large" },
           chatWindow: { backgroundColor: "#F8F8F8" },
+        },
+        prefilledVariables: {
+          utm_source:   _utms.utm_source,
+          utm_medium:   _utms.utm_medium,
+          utm_campaign: _utms.utm_campaign,
+          utm_term:     _utms.utm_term,
+          utm_content:  _utms.utm_content,
+          FBCLID:       _fbclid,
+          GCLID:        _gclid,
+          GBRAID:       _gbraid,
+          WBRAID:       _wbraid,
+          TTCLID:       _ttclid,
+          MSCLKID:      _msclkid,
+          FBP:          _fbp,
+          FBC:          _fbc,
+          Pagina:       window.location.pathname,
+          Referencia:   document.referrer,
+          Idioma:       navigator.language,
+          Resolucao:    `${window.screen.width}x${window.screen.height}`,
+          Navegador:    navigator.userAgent,
         },
       });
     </script>
