@@ -3,8 +3,6 @@ export const config = { runtime: 'edge' };
 const SPREADSHEET_ID  = process.env.SPREADSHEET_ID;
 const SHEET_NAME      = 'Leads';
 const SHEET_PAGEVIEWS = 'Pageviews';
-const META_API_VER    = 'v19.0';
-
 const ALLOWED_ORIGINS = (process.env.ALLOWED_ORIGINS || '').split(',').map(s => s.trim()).filter(Boolean);
 
 function getCorsHeaders(origin) {
@@ -72,78 +70,6 @@ async function getAccessToken(serviceAccountKey) {
   const tokenData = await tokenResponse.json();
   if (!tokenResponse.ok) throw new Error(`Token error: ${tokenData.error_description}`);
   return tokenData.access_token;
-}
-
-async function sha256(str) {
-  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
-  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
-}
-
-function normalizePhone(raw) {
-  let d = (raw || '').replace(/\D/g, '');
-  if (d.startsWith('55') && d.length >= 12) d = d.slice(2);
-  if (d.startsWith('0')) d = d.slice(1);
-  if (d.length === 10) d = d.slice(0, 2) + '9' + d.slice(2);
-  return '55' + d;
-}
-
-function normalizeName(str) {
-  return (str || '').toLowerCase()
-    .normalize('NFD').replace(/[̀-ͯ]/g, '')
-    .replace(/[^a-z]/g, '');
-}
-
-function normalizeCity(str) {
-  return (str || '').toLowerCase()
-    .normalize('NFD').replace(/[̀-ͯ]/g, '')
-    .replace(/[^a-z]/g, '');
-}
-
-async function sendMetaLead(d, geo, ip, ts) {
-  const pixelId = process.env.META_PIXEL_ID;
-  const token   = process.env.META_ACCESS_TOKEN;
-  if (!pixelId || !token) return;
-
-  const nameParts = (d.name || '').trim().split(/\s+/);
-  const firstName = d.first_name || nameParts[0] || '';
-  const lastName  = d.last_name  || nameParts.slice(1).join(' ') || '';
-
-  const [em, ph, fn, ln, country, extId, ct, st, zp] = await Promise.all([
-    sha256((d.email || '').toLowerCase().trim()),
-    sha256(normalizePhone(d.phone)),
-    sha256(normalizeName(firstName)),
-    sha256(normalizeName(lastName)),
-    sha256('br'),
-    sha256(d.event_id || ''),
-    geo.city   ? sha256(normalizeCity(geo.city))          : Promise.resolve(''),
-    geo.region_code ? sha256(geo.region_code.toLowerCase().slice(0,2)) : Promise.resolve(''),
-    geo.postal ? sha256(geo.postal.replace(/\D/g,'').substring(0,8))   : Promise.resolve(''),
-  ]);
-
-  const userData = { em, ph, fn, ln, country, external_id: extId,
-    client_ip_address: ip, client_user_agent: d.user_agent || '' };
-  if (d.fbp) userData.fbp = d.fbp;
-  if (d.fbc) userData.fbc = d.fbc;
-  if (ct) userData.ct = ct;
-  if (st) userData.st = st;
-  if (zp) userData.zp = zp;
-
-  const payload = {
-    data: [{
-      event_name:   'Lead',
-      event_time:   Math.floor(Date.now() / 1000),
-      event_id:     d.event_id || '',
-      action_source: 'website',
-      event_source_url: d.page_url || '',
-      user_data: userData,
-    }],
-  };
-
-  await fetch(`https://graph.facebook.com/${META_API_VER}/${pixelId}/events?access_token=${token}`, {
-    method:  'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body:    JSON.stringify(payload),
-  });
 }
 
 function formatPhone(raw) {
@@ -319,10 +245,6 @@ export default async function handler(req) {
     if (!res.ok) {
       const err = await res.json();
       throw new Error(`SHEETS_FAIL(${res.status}): ${JSON.stringify(err)}`);
-    }
-
-    if (d.type !== 'pageview') {
-      sendMetaLead(d, geo, ip, ts).catch(() => {});
     }
 
     return new Response(JSON.stringify({ success: true }), {
