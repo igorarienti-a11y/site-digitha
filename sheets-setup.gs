@@ -141,7 +141,8 @@ function enviarLeadQualificado(sheet, rowNumber, headers, status) {
   headers.forEach((h, i) => { if (h) lead[h] = rowData[i] ? rowData[i].toString() : ''; });
 
   const eventName = STATUS_EVENTS[status];
-  const result = sendToMeta(lead, rowNumber, eventName);
+  // Passa Event ID do lead para garantir dedup estável após reordenação
+  const result = sendToMeta(lead, rowNumber, eventName, lead['Event ID'] || null);
   log('📊 Resultado envio', { linha: rowNumber, evento: eventName, meta: result.success });
   return result;
 }
