@@ -31,6 +31,7 @@ const ENABLE_LOGS = true;
 function onOpen() {
   SpreadsheetApp.getUi().createMenu('Leads')
     .addItem('Formatar + Reordenar todos', 'formatarTodosLeads')
+    .addItem('Limpar Data ISO inválido',   'limparDataISOInvalido')
     .addItem('Configurar planilha',        'configurarTudo')
     .addItem('Testar envio CAPI',          'testarEnvio')
     .addItem('Diagnóstico',                'diagnosticar')
@@ -47,39 +48,53 @@ function onOpen() {
 function onChange(e) {
   if (!e || e.changeType !== 'INSERT_ROW') return;
 
+  const lock = LockService.getScriptLock();
+  try {
+    lock.waitLock(10000);
+  } catch (err) {
+    logError('onChange:lock', err);
+    return;
+  }
+
   try {
     const ss = e.source;
 
     for (const name of ['Leads', 'Pageviews']) {
-      const sheet = ss.getSheetByName(name);
-      if (!sheet) continue;
+      try {
+        const sheet = ss.getSheetByName(name);
+        if (!sheet) { log('⚠️ Sheet não encontrada: ' + name); continue; }
 
-      const lastRow = sheet.getLastRow();
-      if (lastRow <= 2) continue;
+        const lastRow = sheet.getLastRow();
+        if (lastRow < 2) continue;
 
-      const headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
-      const rowData = sheet.getRange(lastRow, 1, 1, sheet.getLastColumn()).getValues()[0];
+        const headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
+        const rowData = sheet.getRange(lastRow, 1, 1, sheet.getLastColumn()).getValues()[0];
 
-      // Guard: verificar coluna-chave para saber se esta aba recebeu o insert
-      const keyCol = name === 'Leads' ? headers.indexOf('Email') : headers.indexOf('Pagina');
-      if (keyCol === -1 || !rowData[keyCol]) continue;
+        // Guard: verificar coluna-chave para saber se esta aba recebeu o insert
+        const keyCol = name === 'Leads' ? headers.indexOf('Email') : headers.indexOf('Pagina');
+        if (keyCol === -1 || !rowData[keyCol]) continue;
 
-      sheet.insertRowBefore(2);
-      sheet.getRange(2, 1, 1, sheet.getLastColumn()).setValues([rowData]);
-      sheet.deleteRow(lastRow + 1);
-      formatarLinha(sheet, 2);
+        sheet.insertRowBefore(2);
+        sheet.getRange(2, 1, 1, sheet.getLastColumn()).setValues([rowData]);
+        sheet.deleteRow(lastRow + 1);
+        formatarLinha(sheet, 2);
 
-      log('↑ Lead movido para o topo', { sheet: name, linhaOrigem: lastRow });
+        log('↑ Lead movido para o topo', { sheet: name, linhaOrigem: lastRow });
 
-      if (name === 'Leads') {
-        const lead = {};
-        headers.forEach((h, i) => { if (h) lead[h] = rowData[i] ? rowData[i].toString() : ''; });
-        const result = sendToMeta(lead, 2, 'Lead', lead['Event ID'] || null);
-        log('📊 Lead CAPI', { meta: result.success });
+        if (name === 'Leads') {
+          // Relê após formatarLinha para enviar dados já formatados à Meta
+          const formattedRow = sheet.getRange(2, 1, 1, sheet.getLastColumn()).getValues()[0];
+          const lead = {};
+          headers.forEach((h, i) => { if (h) lead[h] = formattedRow[i] ? formattedRow[i].toString() : ''; });
+          const result = sendToMeta(lead, 2, 'Lead', lead['Event ID'] || null);
+          log('📊 Lead CAPI', { meta: result.success });
+        }
+      } catch (sheetErr) {
+        logError('onChange:' + name, sheetErr);
       }
     }
-  } catch (err) {
-    logError('onChange', err);
+  } finally {
+    lock.releaseLock();
   }
 }
 
@@ -90,6 +105,8 @@ function onChange(e) {
 // ==========================================
 
 function onEdit(e) {
+  if (e.range.getNumRows() > 1 || e.range.getNumColumns() > 1) return;
+
   const sheet = e.source.getActiveSheet();
   if (sheet.getName() !== 'Leads') return;
 
@@ -98,12 +115,13 @@ function onEdit(e) {
   if (row === 1) return;
 
   try {
-    const headers   = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
-    const statusCol = headers.indexOf(STATUS_FIELD) + 1;
+    const headers     = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
+    const statusCol   = headers.indexOf(STATUS_FIELD) + 1;
+    const statusValue = (e.value || '').toString().trim();
 
-    if (statusCol > 0 && col === statusCol && STATUS_EVENTS[e.value]) {
-      log('🔥 Status → ' + e.value, { linha: row });
-      enviarLeadQualificado(sheet, row, headers, e.value);
+    if (statusCol > 0 && col === statusCol && STATUS_EVENTS[statusValue]) {
+      log('🔥 Status → ' + statusValue, { linha: row });
+      enviarLeadQualificado(sheet, row, headers, statusValue);
     }
   } catch (err) {
     logError('onEdit', err);
@@ -135,9 +153,11 @@ function enviarLeadQualificado(sheet, rowNumber, headers, status) {
 
 function sendToMeta(lead, rowNumber, eventName, eventId) {
   try {
-    if (META_PIXEL_ID === 'SEU_PIXEL_ID_AQUI') return { success: false, error: 'Pixel não configurado' };
+    if (META_PIXEL_ID === 'SEU_PIXEL_ID_AQUI')    return { success: false, error: 'Pixel não configurado' };
+    if (META_ACCESS_TOKEN === 'SEU_ACCESS_TOKEN_AQUI') return { success: false, error: 'Token não configurado' };
 
     const props     = PropertiesService.getScriptProperties();
+    if (!eventId) log('⚠️ Event ID ausente — dedup por rowNumber pode falhar após reordenação', { linha: rowNumber });
     const cachedKey = eventId
       ? 'meta_sent_' + eventName + '_' + eventId
       : 'meta_sent_' + eventName + '_' + rowNumber;
@@ -160,10 +180,11 @@ function sendToMeta(lead, rowNumber, eventName, eventId) {
         user_data:     userData
       }]
     };
-    const url = 'https://graph.facebook.com/v19.0/' + META_PIXEL_ID + '/events?access_token=' + META_ACCESS_TOKEN;
+    const url = 'https://graph.facebook.com/v19.0/' + META_PIXEL_ID + '/events';
     const res = UrlFetchApp.fetch(url, {
       method: 'post',
       contentType: 'application/json',
+      headers: { 'Authorization': 'Bearer ' + META_ACCESS_TOKEN },
       payload: JSON.stringify(payload),
       muteHttpExceptions: true
     });
@@ -203,10 +224,13 @@ function buildUserData(lead) {
   if (fn)    ud.fn         = [sha256(fn)];
   if (ln)    ud.ln         = [sha256(ln)];
   ud.country               = [sha256('br')];
-  if (lead['Event ID'])  ud.external_id = [sha256(lead['Event ID'])];
+  if (lead['Event ID'])  ud.external_id = [lead['Event ID'].toString()];
   if (lead['Cidade'])    ud.ct = [sha256(normalizeCity(lead['Cidade']))];
   if (lead['Estado'])    ud.st = [sha256(lead['Estado'].toLowerCase().substring(0, 2))];
-  if (lead['CEP'])       ud.zp = [sha256(lead['CEP'].replace(/\D/g, ''))];
+  if (lead['CEP']) {
+    const cep = lead['CEP'].toString().replace(/\D/g, '').padStart(8, '0');
+    if (cep.length === 8) ud.zp = [sha256(cep)];
+  }
 
   if (lead['IP'])        ud.client_ip_address = lead['IP'];
   if (lead['Navegador']) ud.client_user_agent  = lead['Navegador'];
@@ -231,8 +255,10 @@ function normalizeCity(city) {
 }
 
 function sha256(value) {
-  const bytes = Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, value);
-  return bytes.map(b => ('0' + ((b < 0 ? b + 256 : b)).toString(16)).slice(-2)).join('');
+  const str = (value == null ? '' : String(value));
+  if (!str) return '';
+  const bytes = Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, str);
+  return bytes.map(b => ('0' + (b < 0 ? b + 256 : b).toString(16)).slice(-2)).join('');
 }
 
 function normalizeEmail(email) {
@@ -243,9 +269,10 @@ function normalizePhone(phone) {
   if (!phone) return '';
   let d = phone.toString().replace(/\D/g, '');
   if (d.startsWith('0')) d = d.substring(1);
-  if (d.length === 10 || d.length === 11) return '55' + d;
-  if (d.startsWith('55') && d.length >= 12) return d;
-  return d;
+  if (d.startsWith('55')) return (d.length >= 12 && d.length <= 13) ? d : '';
+  if (d.length === 11) return '55' + d;
+  if (d.length === 10) { log('⚠️ Telefone rejeitado (10 dígitos — fixo ou sem nono dígito): ' + phone); return ''; }
+  return '';
 }
 
 
@@ -272,7 +299,12 @@ function testarEnvio() {
   }
 
   const props = PropertiesService.getScriptProperties();
-  props.deleteProperty('meta_sent_' + STATUS_EVENTS[testStatus] + '_' + testRow);
+  const testRowData = sheet.getRange(testRow, 1, 1, headers.length).getValues()[0];
+  const testEventId = testRowData[headers.indexOf('Event ID')] || null;
+  const testCacheKey = testEventId
+    ? 'meta_sent_' + STATUS_EVENTS[testStatus] + '_' + testEventId
+    : 'meta_sent_' + STATUS_EVENTS[testStatus] + '_' + testRow;
+  props.deleteProperty(testCacheKey);
 
   const result = enviarLeadQualificado(sheet, testRow, headers, testStatus);
 
@@ -289,10 +321,10 @@ function diagnosticar() {
   if (!sheet) { SpreadsheetApp.getUi().alert('Aba "Leads" não encontrada.'); return; }
   const headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
 
-  let quentes = 0;
-  for (let i = 2; i <= sheet.getLastRow(); i++) {
-    if (sheet.getRange(i, headers.indexOf(STATUS_FIELD) + 1).getValue() === 'Quente') quentes++;
-  }
+  const lastRow = sheet.getLastRow();
+  const quentes = lastRow < 2 ? 0 : sheet
+    .getRange(2, headers.indexOf(STATUS_FIELD) + 1, lastRow - 1, 1)
+    .getValues().filter(r => r[0] === 'Quente').length;
 
   SpreadsheetApp.getUi().alert(
     'Diagnóstico',
@@ -400,22 +432,22 @@ function configurarAba(nomeAba, headers, secoes) {
   if (sheet.getFilter()) sheet.getFilter().remove();
   sheet.getRange(1, 1, 1, headers.length).createFilter();
 
+  for (let c = 1; c <= headers.length; c++) sheet.autoResizeColumn(c);
+  SpreadsheetApp.flush();
   for (let c = 1; c <= headers.length; c++) {
-    sheet.autoResizeColumn(c);
     const w = sheet.getColumnWidth(c);
     if (w < 80)  sheet.setColumnWidth(c, 80);
     if (w > 280) sheet.setColumnWidth(c, 280);
   }
 
-  sheet.getRange(1, 1, sheet.getMaxRows(), headers.length).setBorder(
+  sheet.getRange(2, 1, sheet.getMaxRows() - 1, headers.length).setBorder(
     null, null, null, null, true, true, '#CBD5E0', SpreadsheetApp.BorderStyle.SOLID
   );
 
   if (nomeAba === 'Leads') {
-    const sheetHeaders = sheet.getRange(1, 1, 1, headers.length).getValues()[0];
-    const statusCol    = sheetHeaders.indexOf('Status') + 1;
+    const statusCol = headers.indexOf('Status') + 1;
 
-    sheet.getRange(1, 1, sheet.getMaxRows(), headers.length).clearDataValidations();
+    sheet.getRange(2, 1, sheet.getMaxRows() - 1, headers.length).clearDataValidations();
 
     const statusRange = sheet.getRange(2, statusCol, sheet.getMaxRows() - 1, 1);
     statusRange.setDataValidation(
@@ -441,103 +473,126 @@ function configurarAba(nomeAba, headers, secoes) {
 // FORMATAÇÃO DE LINHAS
 // ==========================================
 
+// Índices fixos das colunas (0-based) — evita bugs com headers.indexOf
+const COL_MES     = 0;   // A — Mês
+const COL_DATA    = 1;   // B — Data
+const COL_DATAISO = 36;  // AK — Data ISO
+const NUM_COLS    = 37;
+
 function parseDataLocal(val) {
-  if (!val) return null;
-  if (val instanceof Date) return val;
-  const s = val.toString().trim();
+  if (!val || typeof val !== 'string' || val.trim() === '') return null;
+  const s = val.trim();
 
-  // ISO: 2026-04-29T19:07:55-03:00
-  const mIso = s.match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/);
-  if (mIso) return new Date(parseInt(mIso[1]), parseInt(mIso[2]) - 1, parseInt(mIso[3]), parseInt(mIso[4]), parseInt(mIso[5]));
+  // ISO com timezone: 2026-04-30T00:26:00-03:00
+  const mIso = s.match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})(?::(\d{2}))?([+-]\d{2}:\d{2}|Z)?/);
+  if (mIso) {
+    const tz = mIso[7] || 'Z';
+    const tzOffset = tz === 'Z' ? 0 : (() => {
+      const sign = tz[0] === '+' ? 1 : -1;
+      const [h, m] = tz.slice(1).split(':').map(Number);
+      return sign * (h * 60 + m);
+    })();
+    const utcMs = Date.UTC(+mIso[1], +mIso[2] - 1, +mIso[3], +mIso[4], +mIso[5], +(mIso[6] || 0));
+    return new Date(utcMs - tzOffset * 60000);
+  }
 
-  // Já formatado: 29/04/2026 19:07
+  // BR formatado: 29/04/2026 19:07
   const mBr = s.match(/^(\d{2})\/(\d{2})\/(\d{4})\s+(\d{2}):(\d{2})/);
-  if (mBr) return new Date(parseInt(mBr[3]), parseInt(mBr[2]) - 1, parseInt(mBr[1]), parseInt(mBr[4]), parseInt(mBr[5]));
+  if (mBr) return new Date(+mBr[3], +mBr[2] - 1, +mBr[1], +mBr[4], +mBr[5], 0);
 
   return null;
 }
 
 function formatarLinha(sheet, row) {
-  const headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
-  const dataCol = headers.indexOf('Data') + 1;
-  const mesCol  = headers.indexOf('Mês') + 1;
-  const isoCol  = headers.indexOf('Data ISO') + 1;
-  if (dataCol === 0) return;
+  const numCols = Math.min(NUM_COLS, sheet.getLastColumn());
+  const values  = sheet.getRange(row, 1, 1, numCols).getValues()[0];
+  const dataISO = String(values[COL_DATAISO] || '').trim();
+  const dataRaw = String(values[COL_DATA]    || '').trim();
 
-  // Usar Data ISO como fonte primária (preserva original); fallback para coluna Data
-  const isoVal  = isoCol > 0 ? sheet.getRange(row, isoCol).getValue() : '';
-  const dataVal = sheet.getRange(row, dataCol).getValue();
-  const rawVal  = isoVal || dataVal;
+  let dateObj  = null;
 
-  const d = parseDataLocal(rawVal);
-  if (!d) return;
-
-  // Backup ISO antes de sobrescrever coluna Data
-  if (isoCol > 0 && !isoVal) {
-    const isoStr = (dataVal instanceof Date) ? dataVal.toISOString() : dataVal.toString();
-    sheet.getRange(row, isoCol).setValue(isoStr);
+  if (dataISO) {
+    dateObj = parseDataLocal(dataISO);
   }
 
-  const pad = n => String(n).padStart(2, '0');
-  sheet.getRange(row, dataCol).setValue(
-    `${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}`
-  );
+  if (!dateObj && dataRaw) {
+    dateObj = parseDataLocal(dataRaw);
+    if (dateObj && /^\d{4}-\d{2}-\d{2}T/.test(dataRaw)) {
+      sheet.getRange(row, COL_DATAISO + 1).setValue(dataRaw);
+    }
+  }
 
-  if (mesCol > 0 && !sheet.getRange(row, mesCol).getValue()) {
-    sheet.getRange(row, mesCol).setValue(MESES[d.getMonth()] + '/' + d.getFullYear());
+  if (!dateObj) return;
+
+  const pad  = n => String(n).padStart(2, '0');
+  const yyyy = dateObj.getFullYear();
+  const formatted = `${pad(dateObj.getDate())}/${pad(dateObj.getMonth() + 1)}/${yyyy} ${pad(dateObj.getHours())}:${pad(dateObj.getMinutes())}`;
+
+  sheet.getRange(row, COL_DATA + 1).setValue(formatted);
+
+  if (!String(values[COL_MES] || '').trim()) {
+    sheet.getRange(row, COL_MES + 1).setValue(MESES[dateObj.getMonth()] + '/' + yyyy);
   }
 
   const rowColor = (row % 2 === 0) ? BAND_ODD : BAND_EVEN;
-  sheet.getRange(row, 1, 1, sheet.getLastColumn()).setBackground(rowColor);
-  sheet.getRange(row, 1).setBackground(MES_BG).setFontColor(MES_FG);
+  sheet.getRange(row, 1, 1, numCols).setBackground(rowColor);
+  sheet.getRange(row, COL_MES + 1).setBackground(MES_BG).setFontColor(MES_FG);
 }
 
 function moverLeadsParaOTopo() {
   const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Leads');
   if (!sheet) return;
-
   const lastRow = sheet.getLastRow();
-  if (lastRow <= 2) return;
+  if (lastRow < 3) return;
 
-  const headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
-  const isoCol  = headers.indexOf('Data ISO');
-  if (isoCol === -1) return;
+  const actualCols = Math.min(NUM_COLS, sheet.getLastColumn());
+  const data = sheet.getRange(2, 1, lastRow - 1, actualCols).getValues();
 
-  const numCols = sheet.getLastColumn();
-  const data    = sheet.getRange(2, 1, lastRow - 1, numCols).getValues();
+  const getTs = row => {
+    const isoVal  = row[COL_DATAISO];
+    const dataVal = row[COL_DATA];
+    // Sheets retorna Date objects quando interpreta a célula como data — tratar direto
+    if (isoVal  instanceof Date && !isNaN(isoVal))  return isoVal.getTime();
+    if (dataVal instanceof Date && !isNaN(dataVal)) return dataVal.getTime();
+    const d = parseDataLocal(String(isoVal  || '').trim())
+           || parseDataLocal(String(dataVal || '').trim());
+    return d ? d.getTime() : 0;
+  };
 
-  // Ordena por Data ISO decrescente (string ISO é comparável lexicograficamente)
-  data.sort((a, b) => {
-    const da = a[isoCol] ? a[isoCol].toString() : '';
-    const db = b[isoCol] ? b[isoCol].toString() : '';
-    return db.localeCompare(da);
-  });
+  data.sort((a, b) => getTs(b) - getTs(a));
+  sheet.getRange(2, 1, data.length, actualCols).setValues(data);
 
-  sheet.getRange(2, 1, data.length, numCols).setValues(data);
-
-  // Reaplicar cores após reordenação
-  for (let i = 2; i <= lastRow; i++) {
-    const rowColor = (i % 2 === 0) ? BAND_ODD : BAND_EVEN;
-    sheet.getRange(i, 1, 1, numCols).setBackground(rowColor);
-    sheet.getRange(i, 1).setBackground(MES_BG).setFontColor(MES_FG);
+  for (let i = 0; i < data.length; i++) {
+    const r = i + 2;
+    sheet.getRange(r, 1, 1, actualCols).setBackground((i % 2 === 0) ? BAND_ODD : BAND_EVEN);
+    sheet.getRange(r, COL_MES + 1).setBackground(MES_BG).setFontColor(MES_FG);
   }
 
-  log('↕ Leads reordenados por Data ISO', { total: data.length });
+  log('↕ Leads reordenados', { total: data.length });
+}
+
+function limparDataISOInvalido() {
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Leads');
+  if (!sheet) return;
+  const lastRow = sheet.getLastRow();
+  if (lastRow < 2) return;
+  const range  = sheet.getRange(2, COL_DATAISO + 1, lastRow - 1, 1);
+  const values = range.getValues();
+  const cleared = values.map(([v]) => {
+    const s = String(v || '').trim();
+    return [s && !/^\d{4}-\d{2}-\d{2}T/.test(s) ? '' : v];
+  });
+  range.setValues(cleared);
+  log('🧹 Data ISO inválido limpo');
 }
 
 function formatarTodosLeads() {
   const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Leads');
   if (!sheet) { SpreadsheetApp.getUi().alert('Aba "Leads" não encontrada.'); return; }
-
   const lastRow = sheet.getLastRow();
-  if (lastRow <= 1) return;
-
-  for (let i = 2; i <= lastRow; i++) {
-    formatarLinha(sheet, i);
-  }
-
+  if (lastRow < 2) return;
+  for (let i = 2; i <= lastRow; i++) formatarLinha(sheet, i);
   moverLeadsParaOTopo();
-
   SpreadsheetApp.getUi().alert('✅ ' + (lastRow - 1) + ' leads formatados e reordenados.');
 }
 
@@ -552,5 +607,5 @@ function log(msg, data) {
 }
 
 function logError(ctx, err) {
-  Logger.log('[ERRO] ' + ctx + ': ' + err.toString());
+  Logger.log('[ERRO] ' + ctx + ': ' + err.toString() + (err.stack ? '\n' + err.stack : ''));
 }

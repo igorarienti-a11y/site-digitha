@@ -741,6 +741,27 @@
       const _ttclid  = _params.get('ttclid')  || '';
       const _msclkid = _params.get('msclkid') || '';
 
+      // Event ID único por sessão de chat (UUID v4)
+      const _eventId = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+        const r = Math.random() * 16 | 0;
+        return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+      });
+
+      // Geo lookup via ipapi.co (gratuito, sem auth) — não bloqueia init do bubble
+      let _geo = { ip: '', cidade: '', estado: '', cep: '' };
+      try {
+        const _r = await fetch('https://ipapi.co/json/');
+        if (_r.ok) {
+          const _g = await _r.json();
+          _geo = {
+            ip:     _g.ip || '',
+            cidade: _g.city || '',
+            estado: (_g.region_code || '').toUpperCase(),
+            cep:    (_g.postal || '').replace(/\D/g, ''),
+          };
+        }
+      } catch (_) {}
+
       Typebot.initBubble({
         typebot: "digitha-3xnilko",
         theme: {
@@ -761,11 +782,17 @@
           MSCLKID:      _msclkid,
           FBP:          _fbp,
           FBC:          _fbc,
+          'Event ID':   _eventId,
           Pagina:       window.location.pathname,
           Referencia:   document.referrer,
           Idioma:       navigator.language,
           Resolucao:    `${window.screen.width}x${window.screen.height}`,
+          'Fuso Horario': Intl.DateTimeFormat().resolvedOptions().timeZone,
+          IP:           _geo.ip,
           Navegador:    navigator.userAgent,
+          Cidade:       _geo.cidade,
+          Estado:       _geo.estado,
+          CEP:          _geo.cep,
         },
       });
     </script>
