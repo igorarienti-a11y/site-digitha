@@ -46,6 +46,7 @@ if (useLerpScroll) {
     }, { passive: false });
 
     gsap.ticker.add(() => {
+        currentY = window.scrollY; // sync with actual position (handles ScrollTrigger pin jumps)
         const diff = targetY - currentY;
         if (Math.abs(diff) > 0.1) {
             currentY += diff * 0.09;
@@ -363,7 +364,6 @@ function initAnimations() {
         start: 'top top',
         end: `+=${TOTAL_SCROLL}`,
         pin: true,
-        anticipatePin: 1,
         scrub: isMobile ? 0.6 : 0.4,
         invalidateOnRefresh: true,
         onRefresh: positionNodes,
