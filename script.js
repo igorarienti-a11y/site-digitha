@@ -275,9 +275,9 @@ function initAnimations() {
     // =========================================
     // ★ SERVICES WHEEL — Ferris wheel
     //   Phase 1 (0–20% scroll): wheel slides in from right
-    //   Phase 2 (20–100% scroll): wheel rotates through all 6 services
+    //   Phase 2 (20–100% scroll): wheel rotates through all 7 services
     // =========================================
-    const TOTAL_SERVICES = 6;
+    const TOTAL_SERVICES = 7;
     const ANGLE_PER_SERVICE = 360 / TOTAL_SERVICES; // 60°
     const WHEEL_RADIUS_RATIO = 0.42;
 
